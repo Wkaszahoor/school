@@ -11,13 +11,14 @@ class ResultsController extends Controller
 {
     public function index(Request $request)
     {
-        $results = Result::with(['student', 'subject', 'class:id,class,section,class_teacher_id', 'teacher'])
+        $results = Result::with(['student:id,full_name,class_id,stream', 'subject:id,subject_name', 'class:id,class,section,class_teacher_id', 'teacher'])
             ->when($request->class_id, fn($q) => $q->where('class_id', $request->class_id))
             ->when($request->exam_type, fn($q) => $q->where('exam_type', $request->exam_type))
             ->when($request->subject_id, fn($q) => $q->where('subject_id', $request->subject_id))
             ->when($request->academic_year, fn($q) => $q->where('academic_year', $request->academic_year))
             ->when($request->term, fn($q) => $q->where('term', $request->term))
             ->when($request->approval_status !== null, fn($q) => $q->where('approval_status', $request->approval_status))
+            ->when($request->stream, fn($q) => $q->whereHas('student', fn($sq) => $sq->where('stream', $request->stream)))
             ->latest()
             ->paginate(30)
             ->withQueryString();

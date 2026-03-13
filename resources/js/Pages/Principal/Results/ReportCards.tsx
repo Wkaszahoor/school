@@ -136,7 +136,9 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
                                 <div className="text-center relative z-10">
                                     {/* Logo */}
                                     <div className="flex justify-center mb-4">
-                                        <img src="/logo.png" alt="KORT School" className="h-16 object-contain" />
+                                        <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center text-2xl font-black text-blue-900">
+                                            K
+                                        </div>
                                     </div>
                                     <p className="font-black text-sm tracking-widest text-blue-100">KORT SCHOOL MANAGEMENT SYSTEM</p>
                                     <p className="text-xs text-blue-200 mt-1">Providing quality healthcare and hope</p>
