@@ -254,6 +254,9 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])
     Route::post('attendance-criteria', [Teacher\AttendanceCriteriaController::class, 'store'])->name('attendance-criteria.store');
     Route::delete('attendance-criteria', [Teacher\AttendanceCriteriaController::class, 'destroy'])->name('attendance-criteria.destroy');
 
+    Route::get('leave', [Teacher\LeaveController::class, 'index'])->name('leave.index');
+    Route::post('leave', [Teacher\LeaveController::class, 'store'])->name('leave.store');
+
     Route::get('profile', [Teacher\ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile/name', [Teacher\ProfileController::class, 'updateName'])->name('profile.update-name');
     Route::post('profile/password', [Teacher\ProfileController::class, 'updatePassword'])->name('profile.update-password');

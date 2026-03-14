@@ -59,18 +59,126 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
             <Head title="Report Cards">
                 <style>{`
                     @media print {
+                        * {
+                            box-shadow: none !important;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        html { margin: 0; padding: 0; }
+                        body { margin: 0; padding: 0; background: white !important; }
                         .no-print { display: none !important; }
+
                         .report-card {
                             page-break-after: always;
+                            page-break-inside: avoid;
                             box-shadow: none !important;
                             margin: 0 !important;
+                            padding: 0 !important;
                             border-radius: 0 !important;
+                            border: none;
+                            background: white !important;
+                            width: 100%;
                         }
                         .report-card:last-child { page-break-after: avoid; }
-                        body { margin: 0; padding: 0; background: white; }
-                        div { box-shadow: none !important; }
+
+                        .report-card > div {
+                            page-break-inside: avoid;
+                        }
+
+                        /* Header styling for print */
+                        .report-card > div:first-child {
+                            margin-bottom: 0;
+                            padding: 20mm 15mm !important;
+                            background: white !important;
+                            border: 1px solid #333 !important;
+                            color: #000 !important;
+                        }
+
+                        /* Student info section */
+                        .report-card > div:nth-child(2) {
+                            margin-bottom: 0;
+                            padding: 10mm 15mm !important;
+                            background: white !important;
+                            border: 1px solid #ddd !important;
+                        }
+
+                        /* Marks table section */
+                        .report-card > div:nth-child(3) {
+                            margin-bottom: 0;
+                            padding: 10mm 15mm !important;
+                            background: white !important;
+                        }
+
+                        table {
+                            width: 100% !important;
+                            border-collapse: collapse !important;
+                        }
+
+                        th, td {
+                            border: 1px solid #333 !important;
+                            padding: 6px 8px !important;
+                            text-align: left;
+                        }
+
+                        th {
+                            background: #333 !important;
+                            color: white !important;
+                            font-weight: bold !important;
+                        }
+
+                        /* Remarks section */
+                        .report-card > div:nth-child(4) {
+                            margin-bottom: 0;
+                            padding: 10mm 15mm !important;
+                            background: white !important;
+                            border: 1px solid #ddd !important;
+                            page-break-inside: avoid;
+                        }
+
+                        /* Pass/Fail badge section */
+                        .report-card > div:nth-child(5) {
+                            margin-bottom: 0;
+                            padding: 8mm 15mm !important;
+                            background: white !important;
+                            border: 1px solid #ddd !important;
+                        }
+
+                        /* Signature section */
+                        .report-card > div:last-child {
+                            margin-bottom: 0;
+                            padding: 10mm 15mm !important;
+                            background: white !important;
+                            border: 1px solid #ddd !important;
+                            page-break-inside: avoid;
+                        }
+
+                        img {
+                            max-width: 100%;
+                            height: auto;
+                        }
+
+                        .text-gradient-to-r,
+                        .bg-gradient-to-r,
+                        .bg-gradient-to-br {
+                            background: white !important;
+                        }
+
+                        h3 {
+                            margin: 0 0 8px 0 !important;
+                            font-size: 14px !important;
+                        }
+
+                        p {
+                            margin: 2px 0 !important;
+                            font-size: 11px !important;
+                        }
                     }
-                    @page { size: A4 portrait; margin: 15mm; }
+
+                    @page {
+                        size: A4 portrait;
+                        margin: 10mm;
+                    }
+
                     @media screen {
                         body { background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); }
                         .report-card { background: white; margin: 24px 0; }
@@ -109,8 +217,8 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
             </div>
 
             {/* Report cards */}
-            <div className="p-6 min-h-screen">
-                <div className="max-w-5xl mx-auto">
+            <div className="p-6 min-h-screen print:p-0">
+                <div className="max-w-5xl mx-auto print:max-w-full">
                     {reportData.length === 0 ? (
                         <div className="bg-white rounded-2xl p-16 text-center text-gray-500 shadow-lg">
                             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-6">
@@ -130,39 +238,39 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
                                 onMouseLeave={() => setHoveredCard(null)}
                             >
                             {/* Header */}
-                            <div className="bg-gradient-to-br from-indigo-900 via-blue-900 to-blue-800 text-white px-10 py-8 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500 rounded-full opacity-10 transform translate-x-20 -translate-y-20"></div>
-                                <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-400 rounded-full opacity-10 transform -translate-x-16 translate-y-16"></div>
+                            <div className="bg-gradient-to-br from-indigo-900 via-blue-900 to-blue-800 text-white px-10 py-8 relative overflow-hidden print:bg-white print:text-black print:py-4 print:px-6">
+                                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500 rounded-full opacity-10 transform translate-x-20 -translate-y-20 print:hidden"></div>
+                                <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-400 rounded-full opacity-10 transform -translate-x-16 translate-y-16 print:hidden"></div>
                                 <div className="text-center relative z-10">
                                     {/* Logo */}
-                                    <div className="flex justify-center mb-4">
-                                        <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center text-2xl font-black text-blue-900">
+                                    <div className="flex justify-center mb-4 print:mb-2">
+                                        <div className="h-16 w-16 rounded-full bg-white flex items-center justify-center text-2xl font-black text-blue-900 print:h-12 print:w-12 print:text-lg">
                                             K
                                         </div>
                                     </div>
-                                    <p className="font-black text-sm tracking-widest text-blue-100">KORT SCHOOL MANAGEMENT SYSTEM</p>
-                                    <p className="text-xs text-blue-200 mt-1">Providing quality healthcare and hope</p>
-                                    <p className="text-3xl font-black mt-5 tracking-tight">PROGRESS REPORT CARD</p>
-                                    <div className="text-sm mt-4 text-blue-100 space-y-1.5">
-                                        <p className="font-semibold">{examTypes[filters.exam_type]} Examination | {terms[filters.term]} | Session {filters.academic_year}</p>
-                                        <p className="text-blue-200">Date: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                    <p className="font-black text-sm tracking-widest text-blue-100 print:text-gray-900 print:text-xs">KORT SCHOOL MANAGEMENT SYSTEM</p>
+                                    <p className="text-xs text-blue-200 mt-1 print:text-gray-600 print:mt-0">Providing quality healthcare and hope</p>
+                                    <p className="text-3xl font-black mt-5 tracking-tight print:text-2xl print:mt-2">PROGRESS REPORT CARD</p>
+                                    <div className="text-sm mt-4 text-blue-100 space-y-1.5 print:text-xs print:text-gray-700 print:mt-2 print:space-y-0.5">
+                                        <p className="font-semibold print:text-gray-900">{examTypes[filters.exam_type]} Examination | {terms[filters.term]} | Session {filters.academic_year}</p>
+                                        <p className="text-blue-200 print:text-gray-600">Date: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Student Info */}
-                            <div className="border-b-2 border-gray-100 bg-gradient-to-br from-gray-50 to-gray-100">
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 p-10">
+                            <div className="border-b-2 border-gray-100 bg-gradient-to-br from-gray-50 to-gray-100 print:bg-white print:border-gray-300 print:py-2 print:px-6">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 p-10 print:gap-4 print:p-0">
                                     {/* Photo */}
                                     <div className="flex justify-center md:justify-start">
                                         {entry.student.photo ? (
                                             <img
                                                 src={`/storage/${entry.student.photo}`}
                                                 alt={entry.student.full_name}
-                                                className="w-28 h-28 rounded-xl border-4 border-white object-cover shadow-lg"
+                                                className="w-28 h-28 rounded-xl border-4 border-white object-cover shadow-lg print:w-20 print:h-20 print:rounded-sm print:border-2"
                                             />
                                         ) : (
-                                            <div className="w-28 h-28 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white flex items-center justify-center font-black text-3xl border-4 border-white shadow-lg">
+                                            <div className="w-28 h-28 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white flex items-center justify-center font-black text-3xl border-4 border-white shadow-lg print:w-20 print:h-20 print:rounded-sm print:text-lg print:border-2">
                                                 {getInitials(entry.student.full_name)}
                                             </div>
                                         )}
@@ -170,32 +278,32 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
 
                                     {/* Student Details */}
                                     <div className="md:col-span-3">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            <div className="bg-white rounded-lg p-4 shadow-sm">
-                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide">Name</p>
-                                                <p className="font-bold text-gray-900 text-lg mt-1">{entry.student.full_name}</p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 print:grid-cols-2 print:gap-2">
+                                            <div className="bg-white rounded-lg p-4 shadow-sm print:bg-white print:rounded-none print:p-1.5 print:border print:border-gray-300">
+                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide print:text-gray-600 print:text-xs print:tracking-normal">Name</p>
+                                                <p className="font-bold text-gray-900 text-lg mt-1 print:text-sm print:mt-0">{entry.student.full_name}</p>
                                             </div>
-                                            <div className="bg-white rounded-lg p-4 shadow-sm">
-                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide">Admission No.</p>
-                                                <p className="font-bold text-gray-900 text-lg mt-1">{entry.student.admission_no}</p>
+                                            <div className="bg-white rounded-lg p-4 shadow-sm print:bg-white print:rounded-none print:p-1.5 print:border print:border-gray-300">
+                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide print:text-gray-600 print:text-xs print:tracking-normal">Admission No.</p>
+                                                <p className="font-bold text-gray-900 text-lg mt-1 print:text-sm print:mt-0">{entry.student.admission_no}</p>
                                             </div>
-                                            <div className="bg-white rounded-lg p-4 shadow-sm">
-                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide">Class</p>
-                                                <p className="font-bold text-gray-900 text-lg mt-1">
+                                            <div className="bg-white rounded-lg p-4 shadow-sm print:bg-white print:rounded-none print:p-1.5 print:border print:border-gray-300">
+                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide print:text-gray-600 print:text-xs print:tracking-normal">Class</p>
+                                                <p className="font-bold text-gray-900 text-lg mt-1 print:text-sm print:mt-0">
                                                     {entry.student.class ? `${entry.student.class.class}${entry.student.class.section ? ` — ${entry.student.class.section}` : ''}` : 'N/A'}
                                                 </p>
                                             </div>
-                                            <div className="bg-white rounded-lg p-4 shadow-sm">
-                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide">Stream/Group</p>
-                                                <p className="font-bold text-blue-600 text-lg mt-1">{entry.student.stream || 'General'}</p>
+                                            <div className="bg-white rounded-lg p-4 shadow-sm print:bg-white print:rounded-none print:p-1.5 print:border print:border-gray-300">
+                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide print:text-gray-600 print:text-xs print:tracking-normal">Stream/Group</p>
+                                                <p className="font-bold text-blue-600 text-lg mt-1 print:text-gray-900 print:text-sm print:mt-0">{entry.student.stream || 'General'}</p>
                                             </div>
-                                            <div className="bg-white rounded-lg p-4 shadow-sm">
-                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide">Father's Name</p>
-                                                <p className="font-bold text-gray-900 text-lg mt-1">{entry.student.father_name || 'N/A'}</p>
+                                            <div className="bg-white rounded-lg p-4 shadow-sm print:bg-white print:rounded-none print:p-1.5 print:border print:border-gray-300">
+                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide print:text-gray-600 print:text-xs print:tracking-normal">Father's Name</p>
+                                                <p className="font-bold text-gray-900 text-lg mt-1 print:text-sm print:mt-0">{entry.student.father_name || 'N/A'}</p>
                                             </div>
-                                            <div className="bg-white rounded-lg p-4 shadow-sm">
-                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide">Exam Type</p>
-                                                <p className="font-bold text-gray-900 text-lg mt-1">{examTypes[filters.exam_type]}</p>
+                                            <div className="bg-white rounded-lg p-4 shadow-sm print:bg-white print:rounded-none print:p-1.5 print:border print:border-gray-300">
+                                                <p className="text-gray-500 text-xs font-bold uppercase tracking-wide print:text-gray-600 print:text-xs print:tracking-normal">Exam Type</p>
+                                                <p className="font-bold text-gray-900 text-lg mt-1 print:text-sm print:mt-0">{examTypes[filters.exam_type]}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -203,47 +311,47 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
                             </div>
 
                             {/* Marks Table */}
-                            <div className="p-10">
-                                <h3 className="text-lg font-bold text-gray-900 mb-6">Academic Performance</h3>
-                                <div className="overflow-hidden rounded-xl border border-gray-200 shadow-md">
-                                    <table className="w-full border-collapse">
+                            <div className="p-10 print:px-6 print:py-3">
+                                <h3 className="text-lg font-bold text-gray-900 mb-6 print:text-base print:mb-2">Academic Performance</h3>
+                                <div className="overflow-hidden rounded-xl border border-gray-200 shadow-md print:rounded-none print:border-gray-300 print:shadow-none">
+                                    <table className="w-full border-collapse print:text-xs">
                                         <thead>
-                                            <tr className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600">
-                                                <th className="text-left py-4 px-6 font-bold text-white text-sm tracking-wide">Subject</th>
-                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide">Obtained</th>
-                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide">Total</th>
-                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide">%</th>
-                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide">Grade</th>
-                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide">GPA</th>
+                                            <tr className="bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600 print:bg-gray-800 print:text-white">
+                                                <th className="text-left py-4 px-6 font-bold text-white text-sm tracking-wide print:py-2 print:px-3 print:text-xs print:font-bold">Subject</th>
+                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide print:py-2 print:px-3 print:text-xs print:font-bold">Obtained</th>
+                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide print:py-2 print:px-3 print:text-xs print:font-bold">Total</th>
+                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide print:py-2 print:px-3 print:text-xs print:font-bold">%</th>
+                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide print:py-2 print:px-3 print:text-xs print:font-bold">Grade</th>
+                                                <th className="text-center py-4 px-6 font-bold text-white text-sm tracking-wide print:py-2 print:px-3 print:text-xs print:font-bold">GPA</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {entry.results.map((result, idx) => (
-                                                <tr key={idx} className={`border-b border-gray-200 transition-colors ${getGradeBg(result.percentage)} hover:bg-opacity-75`}>
-                                                    <td className="py-4 px-6 text-gray-900 font-semibold">{result.subject_name}</td>
-                                                    <td className="py-4 px-6 text-center text-gray-900 font-medium">{result.obtained_marks}</td>
-                                                    <td className="py-4 px-6 text-center text-gray-900 font-medium">{result.total_marks}</td>
-                                                    <td className={`py-4 px-6 text-center font-bold text-base ${getGradeColor(result.percentage)}`}>
+                                                <tr key={idx} className={`border-b border-gray-200 transition-colors ${getGradeBg(result.percentage)} hover:bg-opacity-75 print:bg-white print:border-gray-300`}>
+                                                    <td className="py-4 px-6 text-gray-900 font-semibold print:py-2 print:px-3 print:font-normal print:text-xs">{result.subject_name}</td>
+                                                    <td className="py-4 px-6 text-center text-gray-900 font-medium print:py-2 print:px-3 print:text-xs">{result.obtained_marks}</td>
+                                                    <td className="py-4 px-6 text-center text-gray-900 font-medium print:py-2 print:px-3 print:text-xs">{result.total_marks}</td>
+                                                    <td className={`py-4 px-6 text-center font-bold text-base print:py-2 print:px-3 print:font-normal print:text-xs print:text-gray-900 ${getGradeColor(result.percentage)}`}>
                                                         {result.percentage.toFixed(1)}%
                                                     </td>
-                                                    <td className={`py-4 px-6 text-center font-black text-lg ${getGradeColor(result.percentage)}`}>
+                                                    <td className={`py-4 px-6 text-center font-black text-lg print:py-2 print:px-3 print:font-bold print:text-xs print:text-gray-900 ${getGradeColor(result.percentage)}`}>
                                                         {result.grade}
                                                     </td>
-                                                    <td className="py-4 px-6 text-center text-gray-900 font-bold">{Number(result.gpa_point).toFixed(2)}</td>
+                                                    <td className="py-4 px-6 text-center text-gray-900 font-bold print:py-2 print:px-3 print:font-normal print:text-xs">{Number(result.gpa_point).toFixed(2)}</td>
                                                 </tr>
                                             ))}
                                             {/* Total Row */}
-                                            <tr className="bg-gradient-to-r from-indigo-100 to-blue-100 border-t-2 border-indigo-300 font-black">
-                                                <td className="py-5 px-6 text-gray-900">TOTAL</td>
-                                                <td className="py-5 px-6 text-center text-gray-900">{entry.summary.total_obtained}</td>
-                                                <td className="py-5 px-6 text-center text-gray-900">{entry.summary.total_possible}</td>
-                                                <td className={`py-5 px-6 text-center text-lg ${getGradeColor(entry.summary.overall_percentage)}`}>
+                                            <tr className="bg-gradient-to-r from-indigo-100 to-blue-100 border-t-2 border-indigo-300 font-black print:bg-gray-100 print:border-gray-400">
+                                                <td className="py-5 px-6 text-gray-900 print:py-2 print:px-3 print:text-xs print:font-bold">TOTAL</td>
+                                                <td className="py-5 px-6 text-center text-gray-900 print:py-2 print:px-3 print:text-xs print:font-bold">{entry.summary.total_obtained}</td>
+                                                <td className="py-5 px-6 text-center text-gray-900 print:py-2 print:px-3 print:text-xs print:font-bold">{entry.summary.total_possible}</td>
+                                                <td className={`py-5 px-6 text-center text-lg print:py-2 print:px-3 print:text-xs print:font-bold print:text-gray-900 ${getGradeColor(entry.summary.overall_percentage)}`}>
                                                     {entry.summary.overall_percentage.toFixed(1)}%
                                                 </td>
-                                                <td className={`py-5 px-6 text-center text-2xl ${getGradeColor(entry.summary.overall_percentage)}`}>
+                                                <td className={`py-5 px-6 text-center text-2xl print:py-2 print:px-3 print:text-xs print:font-bold print:text-gray-900 ${getGradeColor(entry.summary.overall_percentage)}`}>
                                                     {entry.summary.overall_grade}
                                                 </td>
-                                                <td className="py-5 px-6 text-center text-gray-900">{Number(entry.summary.average_gpa).toFixed(2)}</td>
+                                                <td className="py-5 px-6 text-center text-gray-900 print:py-2 print:px-3 print:text-xs print:font-bold">{Number(entry.summary.average_gpa).toFixed(2)}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -252,22 +360,22 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
 
                             {/* Remarks Section */}
                             {entry.results.some(r => r.class_teacher_remarks || r.principal_remarks) && (
-                                <div className="px-10 py-8 border-b-2 border-gray-100 bg-blue-50">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-4">Teacher Remarks</h3>
-                                    <div className="space-y-4">
+                                <div className="px-10 py-8 border-b-2 border-gray-100 bg-blue-50 print:bg-white print:border-gray-300 print:py-4">
+                                    <h3 className="text-lg font-bold text-gray-900 mb-4 print:text-base print:mb-3">Teacher Remarks</h3>
+                                    <div className="space-y-4 print:space-y-2">
                                         {entry.results.map((result, idx) => (
                                             (result.class_teacher_remarks || result.principal_remarks) && (
-                                                <div key={idx} className="bg-white rounded-lg p-4 border border-gray-200">
-                                                    <p className="font-semibold text-gray-900 mb-2">{result.subject_name}</p>
+                                                <div key={idx} className="bg-white rounded-lg p-4 border border-gray-200 print:bg-white print:rounded-none print:p-2 print:border-gray-300 print:mb-2">
+                                                    <p className="font-semibold text-gray-900 mb-2 print:text-sm print:mb-1">{result.subject_name}</p>
                                                     {result.class_teacher_remarks && (
-                                                        <p className="text-sm text-gray-700 mb-2">
-                                                            <span className="font-semibold text-blue-600">Class Teacher: </span>
+                                                        <p className="text-sm text-gray-700 mb-2 print:text-xs print:mb-1">
+                                                            <span className="font-semibold text-blue-600 print:text-gray-900">Class Teacher: </span>
                                                             <em>{result.class_teacher_remarks}</em>
                                                         </p>
                                                     )}
                                                     {result.principal_remarks && (
-                                                        <p className="text-sm text-gray-700">
-                                                            <span className="font-semibold text-indigo-600">Principal: </span>
+                                                        <p className="text-sm text-gray-700 print:text-xs">
+                                                            <span className="font-semibold text-indigo-600 print:text-gray-900">Principal: </span>
                                                             <em>{result.principal_remarks}</em>
                                                         </p>
                                                     )}
@@ -279,25 +387,25 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
                             )}
 
                             {/* Pass/Fail Badge */}
-                            <div className="flex justify-center py-10 border-b-2 border-gray-100 bg-gray-50">
-                                <div className={`${getPassFailBgColor(entry.summary.pass_fail)} ${getPassFailTextColor(entry.summary.pass_fail)} px-12 py-4 rounded-full font-black text-2xl shadow-lg transform hover:scale-105 transition-transform`}>
+                            <div className="flex justify-center py-10 border-b-2 border-gray-100 bg-gray-50 print:py-3 print:border-gray-300 print:bg-white">
+                                <div className={`${getPassFailBgColor(entry.summary.pass_fail)} ${getPassFailTextColor(entry.summary.pass_fail)} px-12 py-4 rounded-full font-black text-2xl shadow-lg transform hover:scale-105 transition-transform print:px-6 print:py-2 print:rounded-none print:text-sm print:shadow-none print:border print:border-gray-400`}>
                                     {entry.summary.pass_fail === 'PASS' ? '✓ PASS' : '✗ FAIL'}
                                 </div>
                             </div>
 
                             {/* Signature Strip */}
-                            <div className="px-10 py-8 bg-gradient-to-r from-gray-50 to-gray-100">
-                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Official Signatures</p>
-                                <div className="grid grid-cols-2 gap-12 text-center">
-                                    <div className="space-y-4">
-                                        <div className="h-16 border-b-2 border-gray-800 mx-auto w-4/5"></div>
-                                        <p className="text-sm font-bold text-gray-900">Class Teacher</p>
-                                        <p className="text-xs text-gray-500">Signature & Date</p>
+                            <div className="px-10 py-8 bg-gradient-to-r from-gray-50 to-gray-100 print:bg-white print:px-6 print:py-4">
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 print:mb-3 print:text-gray-700">Official Signatures</p>
+                                <div className="grid grid-cols-2 gap-12 text-center print:gap-4">
+                                    <div className="space-y-4 print:space-y-2">
+                                        <div className="h-16 border-b-2 border-gray-800 mx-auto w-4/5 print:h-8 print:border-b print:border-gray-700"></div>
+                                        <p className="text-sm font-bold text-gray-900 print:text-xs">Class Teacher</p>
+                                        <p className="text-xs text-gray-500 print:text-gray-600">Signature & Date</p>
                                     </div>
-                                    <div className="space-y-4">
-                                        <div className="h-16 border-b-2 border-gray-800 mx-auto w-4/5"></div>
-                                        <p className="text-sm font-bold text-gray-900">Principal</p>
-                                        <p className="text-xs text-gray-500">Signature & Date</p>
+                                    <div className="space-y-4 print:space-y-2">
+                                        <div className="h-16 border-b-2 border-gray-800 mx-auto w-4/5 print:h-8 print:border-b print:border-gray-700"></div>
+                                        <p className="text-sm font-bold text-gray-900 print:text-xs">Principal</p>
+                                        <p className="text-xs text-gray-500 print:text-gray-600">Signature & Date</p>
                                     </div>
                                 </div>
                             </div>

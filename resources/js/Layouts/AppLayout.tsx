@@ -137,6 +137,7 @@ function getNavigation(user: User, pageProps: any): NavGroup[] {
                         { label: 'Attendance Criteria', href: route('teacher.attendance-criteria.index'), icon: ClipboardDocumentCheckIcon },
                         { label: 'Results',          href: route('teacher.results.index'),     icon: AcademicCapIcon },
                         { label: 'Lesson Plans',     href: route('teacher.lesson-plans.index'), icon: DocumentTextIcon },
+                        { label: 'Leave Requests',   href: route('teacher.leave.index'), icon: CalendarIcon },
                         { label: 'Messages',         href: route('chat.index'),                icon: ChatBubbleLeftRightIcon },
                         { label: 'To-Do List',       href: route('todos.index'), icon: ClipboardDocumentListIcon },
                     ],

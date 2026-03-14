@@ -221,16 +221,22 @@ export interface StudentReportCard {
 
 export interface LeaveRequest {
     id: number;
-    teacher_profile_id: number;
+    request_type: 'teacher' | 'student';
+    teacher_id: number | null;
+    student_id: number | null;
+    class_id?: number | null;
     from_date: string;
     to_date: string;
-    leave_type: string;
+    leave_type: 'casual' | 'annual' | 'emergency' | 'other' | null;
+    other_leave_type: string | null;
     reason: string;
-    status: 'pending' | 'approved' | 'rejected';
+    status: 'Pending' | 'Approved' | 'Rejected';
     approved_by: number | null;
     approved_at: string | null;
     remarks: string | null;
-    teacher?: TeacherProfile;
+    teacher?: User;
+    student?: Student;
+    days?: number;
     created_at: string;
 }
 
