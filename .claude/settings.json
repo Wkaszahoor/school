@@ -41,7 +41,10 @@
       "Bash(grep -r \"window.open\\\\|target.*_blank\\\\|new tab\\\\|newTab\" /i/website/school/ekort/resources/js --include=*.tsx -l)",
       "Bash(php remove-biology-ics.php)",
       "Bash(php check-ics-subjects.php)",
-      "Bash(composer require:*)"
+      "Bash(composer require:*)",
+      "Read(//i/website/school/**)",
+      "Bash(npx create-next-app@latest ekort-nextjs --typescript --tailwind --app --src-dir --use-npm --import-alias '@/*' --eslint --no-git)",
+      "Bash(npx create-next-app@latest ekort-nextjs --typescript --tailwind --app --src-dir --use-npm --import-alias '@/*' --eslint)"
     ],
     "additionalDirectories": [
       "I:\\website\\school\\ekort\\database\\seeders",
@@ -55,7 +58,8 @@
       "I:\\website\\school\\ekort\\src\\pages\\",
       "I:\\website\\school\\ekort\\resources\\js\\Pages\\Principal\\PakistaniSubjects",
       "I:\\website\\school\\ekort\\database\\migrations",
-      "I:\\website\\school\\ekort\\resources\\js\\Pages\\Principal\\SubjectGroups"
+      "I:\\website\\school\\ekort\\resources\\js\\Pages\\Principal\\SubjectGroups",
+      "i:\\website\\school\\ekort-nextjs"
     ]
   }
 }
