@@ -40,7 +40,8 @@
       "Bash(find i:/website/school/ekort -name *.tsx -path */Results*)",
       "Bash(grep -r \"window.open\\\\|target.*_blank\\\\|new tab\\\\|newTab\" /i/website/school/ekort/resources/js --include=*.tsx -l)",
       "Bash(php remove-biology-ics.php)",
-      "Bash(php check-ics-subjects.php)"
+      "Bash(php check-ics-subjects.php)",
+      "Bash(composer require:*)"
     ],
     "additionalDirectories": [
       "I:\\website\\school\\ekort\\database\\seeders",
