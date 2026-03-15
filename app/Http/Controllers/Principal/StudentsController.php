@@ -159,9 +159,126 @@ class StudentsController extends Controller
                 ];
             })->sortByDesc('month')->values();
 
+        // Results Summary
+        $allResults = $student->results->all();
+        $resultsSummary = collect($allResults)->map(fn($r) => [
+            'id'              => $r->id,
+            'subject_name'    => $r->subject?->subject_name ?? 'Unknown',
+            'exam_type'       => $r->exam_type,
+            'academic_year'   => $r->academic_year,
+            'term'            => $r->term,
+            'total_marks'     => $r->total_marks,
+            'obtained_marks'  => $r->obtained_marks,
+            'percentage'      => $r->percentage,
+            'grade'           => $r->grade,
+            'gpa_point'       => $r->gpa_point,
+            'approval_status' => $r->approval_status,
+        ])->sortByDesc('academic_year')->sortByDesc('created_at')->values();
+
+        // Group results by academic year
+        $resultsByAcademicYear = collect($allResults)
+            ->groupBy('academic_year')
+            ->sortByDesc('0.created_at')
+            ->map(function($records) {
+                return [
+                    'academic_year' => $records->first()->academic_year,
+                    'results' => collect($records)->map(fn($r) => [
+                        'id' => $r->id,
+                        'subject_name' => $r->subject?->subject_name ?? 'Unknown',
+                        'exam_type' => $r->exam_type,
+                        'term' => $r->term,
+                        'total_marks' => $r->total_marks,
+                        'obtained_marks' => $r->obtained_marks,
+                        'percentage' => $r->percentage,
+                        'grade' => $r->grade,
+                        'gpa_point' => $r->gpa_point,
+                    ])->sortByDesc('created_at')->values(),
+                ];
+            })->values();
+
+        $resultsBySubject = collect($allResults)
+            ->groupBy('subject_id')
+            ->map(function($records) {
+                $subject = $records->first()->subject;
+                return [
+                    'subject_id'    => $records->first()->subject_id,
+                    'subject_name'  => $subject?->subject_name ?? 'Unknown',
+                    'count'         => $records->count(),
+                    'avg_percentage'=> round($records->avg('percentage'), 1),
+                    'avg_gpa'       => round($records->avg('gpa_point'), 2),
+                    'best_grade'    => $records->sortByDesc('percentage')->first()->grade,
+                ];
+            })->values();
+
+        // Discipline Summary
+        $allDiscipline = $student->disciplineRecords->all();
+        $disciplineSummary = collect($allDiscipline)->map(fn($d) => [
+            'id'        => $d->id,
+            'category'  => $d->category,
+            'severity'  => $d->severity,
+            'title'     => $d->title,
+            'description' => $d->description,
+            'status'    => $d->status,
+            'incident_date' => $d->incident_date,
+            'created_at' => $d->created_at,
+        ])->sortByDesc('incident_date')->values();
+
+        $disciplineStats = [
+            'total'       => count($allDiscipline),
+            'warnings'    => collect($allDiscipline)->where('category', 'warning')->count(),
+            'achievements'=> collect($allDiscipline)->where('category', 'achievement')->count(),
+            'suspensions' => collect($allDiscipline)->where('category', 'suspension')->count(),
+            'others'      => collect($allDiscipline)->where('category', 'other')->count(),
+        ];
+
+        // Student History Timeline (combine all events)
+        $timeline = collect();
+
+        // Add result milestones
+        foreach ($allResults as $result) {
+            $timeline->push([
+                'type'      => 'result',
+                'date'      => $result->created_at ?? now(),
+                'title'     => "Result recorded: {$result->subject?->subject_name}",
+                'subtitle'  => "{$result->obtained_marks}/{$result->total_marks} ({$result->percentage}%) - Grade: {$result->grade}",
+                'badge'     => $result->grade,
+                'color'     => $this->getGradeColor($result->grade),
+                'icon'      => '📊',
+            ]);
+        }
+
+        // Add discipline milestones
+        foreach ($allDiscipline as $discipline) {
+            $timeline->push([
+                'type'      => 'discipline',
+                'date'      => $discipline->incident_date,
+                'title'     => "{$discipline->category}: {$discipline->title}",
+                'subtitle'  => $discipline->description,
+                'badge'     => $discipline->severity,
+                'color'     => $this->getSeverityColor($discipline->severity),
+                'icon'      => $this->getCategoryIcon($discipline->category),
+            ]);
+        }
+
+        // Add first attendance milestone
+        if ($allAttendance) {
+            $timeline->push([
+                'type'      => 'attendance',
+                'date'      => collect($allAttendance)->min('attendance_date'),
+                'title'     => 'First Attendance Record',
+                'subtitle'  => 'Student started recording attendance',
+                'badge'     => 'START',
+                'color'     => 'bg-blue-100 text-blue-700',
+                'icon'      => '📝',
+            ]);
+        }
+
+        $timeline = $timeline->sortByDesc('date')->values();
+
         return Inertia::render('Principal/Students/Show', compact(
             'student', 'attendanceSummary', 'monthAttendance',
-            'attendanceReport', 'subjectWiseSummary', 'monthWiseSummary'
+            'attendanceReport', 'subjectWiseSummary', 'monthWiseSummary',
+            'resultsSummary', 'resultsBySubject', 'resultsByAcademicYear', 'disciplineSummary', 'disciplineStats', 'timeline'
         ));
     }
 
@@ -205,7 +322,17 @@ class StudentsController extends Controller
             'ambition'          => 'nullable|string|max:255',
             'reason_left_kort'  => 'nullable|string',
             'leaving_date'      => 'nullable|date',
+            'photo'             => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo if it exists
+            if ($student->photo) {
+                Storage::disk('public')->delete($student->photo);
+            }
+            $data['photo'] = $request->file('photo')->store('students', 'public');
+        }
 
         $oldValues = $student->getAttributes();
         $student->update($data);
@@ -266,5 +393,37 @@ class StudentsController extends Controller
         }
 
         return back()->with('success', "Stream/Group assigned to {$count} student" . ($count !== 1 ? 's' : '') . '.');
+    }
+
+    private function getGradeColor($grade)
+    {
+        return match($grade) {
+            'A' => 'bg-green-100 text-green-700',
+            'B' => 'bg-blue-100 text-blue-700',
+            'C' => 'bg-yellow-100 text-yellow-700',
+            'D' => 'bg-orange-100 text-orange-700',
+            'F' => 'bg-red-100 text-red-700',
+            default => 'bg-gray-100 text-gray-700',
+        };
+    }
+
+    private function getSeverityColor($severity)
+    {
+        return match($severity) {
+            'low' => 'bg-blue-100 text-blue-700',
+            'medium' => 'bg-yellow-100 text-yellow-700',
+            'high' => 'bg-red-100 text-red-700',
+            default => 'bg-gray-100 text-gray-700',
+        };
+    }
+
+    private function getCategoryIcon($category)
+    {
+        return match($category) {
+            'warning' => '⚠️',
+            'achievement' => '🏆',
+            'suspension' => '🚫',
+            default => '📋',
+        };
     }
 }

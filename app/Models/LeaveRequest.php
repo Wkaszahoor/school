@@ -10,6 +10,7 @@ class LeaveRequest extends Model
         'request_type', 'teacher_id', 'student_id', 'class_id',
         'from_date', 'to_date', 'reason', 'leave_type', 'other_leave_type',
         'status', 'requested_by', 'approved_by', 'approved_at', 'remarks',
+        'is_paid', 'approved_days',
     ];
 
     protected $casts = [
