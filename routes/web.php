@@ -65,6 +65,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('holidays', Admin\HolidayController::class);
     Route::get('holidays/calendar/view', [Admin\HolidayController::class, 'calendar'])->name('holidays.calendar');
     Route::resource('holiday-types', Admin\HolidayTypeController::class);
+
+    // Academic Years Management
+    Route::resource('academic-years', Admin\AcademicYearsController::class);
+    Route::post('academic-years/{academicYear}/restore', [Admin\AcademicYearsController::class, 'restore'])->name('academic-years.restore');
 });
 
 // ─── Principal ───────────────────────────────────────────────────────────────
@@ -184,6 +188,10 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
     Route::patch('academic-calendars/{academicCalendar}/reschedule', [Principal\AcademicCalendarsController::class, 'reschedule'])->name('academic-calendars.reschedule');
     Route::delete('academic-calendars/{academicCalendar}/quick-destroy', [Principal\AcademicCalendarsController::class, 'quickDestroy'])->name('academic-calendars.quick-destroy');
     Route::resource('academic-calendars', Principal\AcademicCalendarsController::class);
+
+    // Academic Years Management Routes
+    Route::resource('academic-years', Principal\AcademicYearsController::class);
+    Route::post('academic-years/{academicYear}/restore', [Principal\AcademicYearsController::class, 'restore'])->name('academic-years.restore');
 
     // Teacher Management Routes
     Route::get('teachers', [Principal\TeachersController::class, 'index'])->name('teachers.index');

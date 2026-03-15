@@ -47,6 +47,7 @@ function getNavigation(user: User, pageProps: any): NavGroup[] {
                         { label: 'Import Teachers',  href: route('admin.import-teachers.index'), icon: ArrowUpTrayIcon },
                         { label: 'Classes',    href: route('admin.classes.index'),   icon: BookOpenIcon },
                         { label: 'Subject Management', href: route('admin.subject-management.index'), icon: BeakerIcon },
+                        { label: 'Academic Years', href: route('admin.academic-years.index'), icon: CalendarIcon },
                         { label: 'University', href: route('admin.university-students.index'), icon: BuildingLibraryIcon },
                         { label: 'Staff Users',href: route('admin.users.index'),     icon: ShieldCheckIcon },
                     ],
@@ -90,6 +91,7 @@ function getNavigation(user: User, pageProps: any): NavGroup[] {
                         { label: 'Results',               href: route('principal.results.index'), icon: ChartBarIcon },
                         { label: 'Lesson Plans',          href: route('principal.lesson-plans.index'), icon: DocumentTextIcon },
                         { label: 'Academic Calendar',     href: route('principal.academic-calendars.index'), icon: CalendarIcon },
+                        { label: 'Academic Years',        href: route('principal.academic-years.index'), icon: CalendarIcon },
                     ],
                 },
                 {
