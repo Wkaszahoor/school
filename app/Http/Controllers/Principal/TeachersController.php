@@ -26,7 +26,7 @@ class TeachersController extends Controller
                 "{$c->class}" . ($c->section ? "-{$c->section}" : '')
             )->toArray();
 
-            $teacher->active_devices_count = $teacher->user->devices()->whereNull('unassigned_at')->count();
+            $teacher->active_devices_count = $teacher->user ? $teacher->user->devices()->whereNull('unassigned_at')->count() : 0;
 
             return $teacher;
         });
