@@ -82,6 +82,10 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
     Route::get('attendance-report', [Principal\AttendanceReportController::class, 'index'])->name('attendance-report.index');
     Route::get('attendance-performance', [Principal\AttendancePerformanceController::class, 'index'])->name('attendance-performance.index');
 
+    // Analytics
+    Route::get('analytics/student-results', [Principal\AnalyticsController::class, 'studentResults'])->name('analytics.student-results');
+    Route::get('analytics/teacher-performance', [Principal\AnalyticsController::class, 'teacherPerformance'])->name('analytics.teacher-performance');
+
     Route::get('leave', [Principal\LeaveController::class, 'index'])->name('leave.index');
     Route::get('leave/calendar', [Principal\LeaveController::class, 'calendar'])->name('leave.calendar');
     Route::get('leave/settings', [Principal\LeaveController::class, 'settingsIndex'])->name('leave.settings');
@@ -235,6 +239,19 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
         Route::post('pbl-assignments/{assignment}/groups', [Principal\PBLAssignmentsController::class, 'createGroup'])->name('pbl-assignments.create-group');
         Route::post('pbl-submissions/{submission}/evaluate', [Principal\PBLAssignmentsController::class, 'evaluateSubmission'])->name('pbl-submissions.evaluate');
 
+        // Proficiency Tests
+        Route::get('proficiency-tests', [Principal\ProficiencyTestsController::class, 'index'])->name('proficiency-tests.index');
+        Route::get('proficiency-tests/create', [Principal\ProficiencyTestsController::class, 'create'])->name('proficiency-tests.create');
+        Route::post('proficiency-tests', [Principal\ProficiencyTestsController::class, 'store'])->name('proficiency-tests.store');
+        Route::get('proficiency-tests/{proficiencyTest}', [Principal\ProficiencyTestsController::class, 'show'])->name('proficiency-tests.show');
+        Route::get('proficiency-tests/{proficiencyTest}/edit', [Principal\ProficiencyTestsController::class, 'edit'])->name('proficiency-tests.edit');
+        Route::put('proficiency-tests/{proficiencyTest}', [Principal\ProficiencyTestsController::class, 'update'])->name('proficiency-tests.update');
+        Route::delete('proficiency-tests/{proficiencyTest}', [Principal\ProficiencyTestsController::class, 'destroy'])->name('proficiency-tests.destroy');
+        Route::get('proficiency-tests/{proficiencyTest}/assign', [Principal\ProficiencyTestsController::class, 'assign'])->name('proficiency-tests.assign');
+        Route::post('proficiency-tests/{proficiencyTest}/assign', [Principal\ProficiencyTestsController::class, 'storeAssignment'])->name('proficiency-tests.store-assignment');
+        Route::delete('proficiency-tests/{proficiencyTest}/assign/{user}', [Principal\ProficiencyTestsController::class, 'removeAssignment'])->name('proficiency-tests.remove-assignment');
+        Route::post('proficiency-test-answers/{answer}/grade', [Principal\ProficiencyTestsController::class, 'gradeEssay'])->name('proficiency-tests.grade-essay');
+
         // Certifications
         Route::get('certifications', [Principal\CertificationsController::class, 'index'])->name('certifications.index');
         Route::get('certifications/{certification}', [Principal\CertificationsController::class, 'show'])->name('certifications.show');
@@ -357,6 +374,14 @@ Route::prefix('inventory')->name('inventory.')->middleware(['auth', 'role:invent
     Route::post('items', [Inventory\DashboardController::class, 'storeItem'])->name('items.store');
     Route::post('stock-in', [Inventory\DashboardController::class, 'stockIn'])->name('stock-in');
     Route::post('stock-out', [Inventory\DashboardController::class, 'stockOut'])->name('stock-out');
+});
+
+// ─── Proficiency Test Take Routes (teachers and students) ─────────────────────
+Route::middleware(['auth', 'role:teacher,student,principal,admin'])->group(function () {
+    Route::get('proficiency-tests/my', [\App\Http\Controllers\ProficiencyTestTakeController::class, 'myTests'])->name('proficiency-tests.my');
+    Route::get('proficiency-tests/take/{assignment}', [\App\Http\Controllers\ProficiencyTestTakeController::class, 'take'])->name('proficiency-tests.take');
+    Route::post('proficiency-tests/submit/{attempt}', [\App\Http\Controllers\ProficiencyTestTakeController::class, 'submit'])->name('proficiency-tests.submit');
+    Route::get('proficiency-tests/result/{attempt}', [\App\Http\Controllers\ProficiencyTestTakeController::class, 'result'])->name('proficiency-tests.result');
 });
 
 // ─── Shared Notice Routes (all authenticated users) ────────────────────────────

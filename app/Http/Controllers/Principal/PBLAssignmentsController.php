@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Principal;
 use App\Http\Controllers\Controller;
 use App\Models\{
     PBLAssignment, PBLStudentGroup, PBLSubmission, PBLEvaluation, PBLRubric,
-    SchoolClass, Subject, AuditLog
+    SchoolClass, Subject, AuditLog, User
 };
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -46,8 +46,9 @@ class PBLAssignmentsController extends Controller
         $classes = SchoolClass::where('is_active', true)->get(['id', 'class', 'section']);
         $subjects = Subject::where('is_active', true)->get(['id', 'subject_name']);
         $rubrics = PBLRubric::where('is_active', true)->get(['id', 'rubric_name']);
+        $teachers = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
 
-        return Inertia::render('Principal/ProfessionalDevelopment/PBLAssignments/Form', compact('classes', 'subjects', 'rubrics'));
+        return Inertia::render('Principal/ProfessionalDevelopment/PBLAssignments/Form', compact('classes', 'subjects', 'rubrics', 'teachers'));
     }
 
     public function store(Request $request)
@@ -82,8 +83,9 @@ class PBLAssignmentsController extends Controller
         $classes = SchoolClass::where('is_active', true)->get(['id', 'class', 'section']);
         $subjects = Subject::where('is_active', true)->get(['id', 'subject_name']);
         $rubrics = PBLRubric::where('is_active', true)->get(['id', 'rubric_name']);
+        $teachers = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
 
-        return Inertia::render('Principal/ProfessionalDevelopment/PBLAssignments/Form', compact('assignment', 'classes', 'subjects', 'rubrics'));
+        return Inertia::render('Principal/ProfessionalDevelopment/PBLAssignments/Form', compact('assignment', 'classes', 'subjects', 'rubrics', 'teachers'));
     }
 
     public function update(Request $request, PBLAssignment $assignment)

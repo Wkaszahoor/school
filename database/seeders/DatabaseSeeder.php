@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,7 +26,7 @@ class DatabaseSeeder extends Seeder
                 ['email' => $u['email']],
                 [
                     'name'      => $u['name'],
-                    'password'  => $u['password'], // Model mutator will hash it
+                    'password'  => Hash::make($u['password']), // Explicitly hash
                     'role'      => $u['role'],
                     'is_active' => true,
                 ]

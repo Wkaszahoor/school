@@ -89,6 +89,8 @@ function getNavigation(user: User, pageProps: any): NavGroup[] {
                         { label: 'Datesheets',            href: route('principal.datesheets.index'), icon: CalendarIcon },
                         { label: 'Admission Cards',       href: route('principal.admission-cards.index'), icon: IdentificationIcon },
                         { label: 'Results',               href: route('principal.results.index'), icon: ChartBarIcon },
+                        { label: 'Student Analytics',     href: route('principal.analytics.student-results'), icon: ChartBarIcon },
+                        { label: 'Teacher Performance',   href: route('principal.analytics.teacher-performance'), icon: ChartBarIcon },
                         { label: 'Lesson Plans',          href: route('principal.lesson-plans.index'), icon: DocumentTextIcon },
                         { label: 'Academic Calendar',     href: route('principal.academic-calendars.index'), icon: CalendarIcon },
                         { label: 'Academic Years',        href: route('principal.academic-years.index'), icon: CalendarIcon },
@@ -120,6 +122,7 @@ function getNavigation(user: User, pageProps: any): NavGroup[] {
                     items: [
                         { label: 'Training Courses', href: route('principal.professional-development.training-courses.index'), icon: AcademicCapIcon },
                         { label: 'PBL Assignments', href: route('principal.professional-development.pbl-assignments.index'), icon: LightBulbIcon },
+                        { label: 'Proficiency Tests', href: route('principal.professional-development.proficiency-tests.index'), icon: AcademicCapIcon },
                         { label: 'Certifications', href: route('principal.professional-development.certifications.index'), icon: CheckCircleIcon },
                     ],
                 },
@@ -152,6 +155,7 @@ function getNavigation(user: User, pageProps: any): NavGroup[] {
                     items: [
                         { label: 'Training Courses', href: route('teacher.professional-development.training-courses.index'), icon: AcademicCapIcon },
                         { label: 'PBL Assignments', href: route('teacher.professional-development.pbl-assignments.index'), icon: LightBulbIcon },
+                        { label: 'My Proficiency Tests', href: route('proficiency-tests.my'), icon: AcademicCapIcon },
                         { label: 'Teaching Resources', href: route('teacher.professional-development.resources.index'), icon: BookOpenIcon },
                         { label: 'My Certifications', href: route('teacher.professional-development.certifications.index'), icon: CheckCircleIcon },
                     ],
