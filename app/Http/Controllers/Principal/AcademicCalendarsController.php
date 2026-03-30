@@ -149,4 +149,53 @@ class AcademicCalendarsController extends Controller
             'academicYears' => $academicYears,
         ]);
     }
+
+    public function reschedule(Request $request, AcademicCalendar $academicCalendar)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $academicCalendar->update([
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function quickStore(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'type' => 'required|in:holiday,exam,term,event,semester,break,other',
+                'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+                'academic_year' => 'required|string',
+                'is_all_day' => 'sometimes|boolean',
+            ]);
+
+            $validated['created_by'] = auth()->id();
+
+            $event = AcademicCalendar::create($validated);
+
+            return response()->json($event, 201);
+        } catch (\Exception $e) {
+            \Log::error('Error creating academic calendar event:', [
+                'error' => $e->getMessage(),
+                'request' => $request->all(),
+            ]);
+            throw $e;
+        }
+    }
+
+    public function quickDestroy(AcademicCalendar $academicCalendar)
+    {
+        $academicCalendar->delete();
+
+        return response()->json(['ok' => true]);
+    }
 }

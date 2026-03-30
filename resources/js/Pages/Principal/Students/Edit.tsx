@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, CameraIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import AppLayout from '@/Layouts/AppLayout';
 import type { PageProps, Student, SchoolClass, SubjectGroup } from '@/types';
 
@@ -11,6 +11,7 @@ interface Props extends PageProps {
 }
 
 export default function PrincipalEditStudent({ student, classes, groups }: Props) {
+    const [photoPreview, setPhotoPreview] = useState<string | null>(student.photo ? `/storage/${student.photo}` : null);
     const { data, setData, put, processing, errors } = useForm({
         full_name: student.full_name,
         admission_no: student.admission_no,
@@ -43,11 +44,31 @@ export default function PrincipalEditStudent({ student, classes, groups }: Props
         ambition: student.ambition ?? '',
         reason_left_kort: student.reason_left_kort ?? '',
         leaving_date: student.leaving_date ?? '',
+        photo: null as File | null,
     });
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData('photo', file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPhotoPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const clearPhoto = () => {
+        setData('photo', null);
+        setPhotoPreview(null);
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route('principal.students.update', student.id));
+        put(route('principal.students.update', student.id), {
+            forceFormData: true,
+        });
     };
 
     // Check if selected class is 9-12 (eligible for subject groups)
@@ -309,7 +330,49 @@ export default function PrincipalEditStudent({ student, classes, groups }: Props
                         </div>
                     </div>
 
-                    <div>
+                    <div className="space-y-5">
+                        {/* Photo Upload */}
+                        <div className="card">
+                            <div className="card-header"><p className="card-title">Student Photo</p></div>
+                            <div className="card-body space-y-4">
+                                {/* Photo Preview */}
+                                <div className="flex justify-center">
+                                    {photoPreview ? (
+                                        <div className="relative">
+                                            <img src={photoPreview} alt="Student" className="w-40 h-40 rounded-lg object-cover border-2 border-indigo-200" />
+                                            <button
+                                                type="button"
+                                                onClick={clearPhoto}
+                                                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700"
+                                            >
+                                                <XMarkIcon className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="w-40 h-40 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                            <div className="text-center">
+                                                <CameraIcon className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                                                <p className="text-sm text-gray-500">No photo</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* File Input */}
+                                <div className="form-group">
+                                    <label className="form-label">Upload Photo</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handlePhotoChange}
+                                        className="form-input"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-2">JPG, PNG or GIF (Max. 5MB)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Save Changes */}
                         <div className="card">
                             <div className="card-header"><p className="card-title">Save Changes</p></div>
                             <div className="card-body space-y-3">

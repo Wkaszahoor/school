@@ -1,0 +1,46 @@
+# Jekyll Configuration for GitHub Pages
+# This file configures Jekyll for static site hosting
+
+# Site Settings
+title: KORT School Management System
+description: A comprehensive school management system for UK-based schools
+baseurl: "" # Leave empty if hosting at username.github.io
+url: "https://username.github.io"
+author: KORT
+email: info@kort.org.uk
+
+# Build Settings
+markdown: kramdown
+theme: jekyll-theme-minimal
+
+# Exclude files from Jekyll build
+exclude:
+  - node_modules
+  - vendor
+  - .git
+  - .gitignore
+  - Gemfile
+  - Gemfile.lock
+  - package.json
+  - package-lock.json
+  - vite.config.ts
+  - tsconfig.json
+  - docker-compose.yml
+  - app/
+  - database/
+  - routes/
+  - bootstrap/
+  - storage/
+  - tests/
+  - public/index.php
+  - artisan
+  - .env*
+
+# Keep Files
+keep_files:
+  - dist
+  - build
+
+# Output Settings
+source: .
+destination: ./_site

@@ -65,6 +65,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('holidays', Admin\HolidayController::class);
     Route::get('holidays/calendar/view', [Admin\HolidayController::class, 'calendar'])->name('holidays.calendar');
     Route::resource('holiday-types', Admin\HolidayTypeController::class);
+
+    // Academic Years Management
+    Route::resource('academic-years', Admin\AcademicYearsController::class);
+    Route::post('academic-years/{academicYear}/restore', [Admin\AcademicYearsController::class, 'restore'])->name('academic-years.restore');
 });
 
 // ─── Principal ───────────────────────────────────────────────────────────────
@@ -79,6 +83,9 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
     Route::get('attendance-performance', [Principal\AttendancePerformanceController::class, 'index'])->name('attendance-performance.index');
 
     Route::get('leave', [Principal\LeaveController::class, 'index'])->name('leave.index');
+    Route::get('leave/calendar', [Principal\LeaveController::class, 'calendar'])->name('leave.calendar');
+    Route::get('leave/settings', [Principal\LeaveController::class, 'settingsIndex'])->name('leave.settings');
+    Route::post('leave/settings', [Principal\LeaveController::class, 'settingsStore'])->name('leave.settings.store');
     Route::post('leave/{leave}/approve', [Principal\LeaveController::class, 'approve'])->name('leave.approve');
     Route::post('leave/{leave}/reject', [Principal\LeaveController::class, 'reject'])->name('leave.reject');
 
@@ -176,12 +183,23 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
     Route::delete('teacher-availabilities/{availability}', [Principal\TeacherAvailabilitiesController::class, 'destroy'])->name('teacher-availabilities.destroy');
 
     // Academic Calendar Routes
-    Route::resource('academic-calendars', Principal\AcademicCalendarsController::class);
     Route::get('academic-calendars/calendar/view', [Principal\AcademicCalendarsController::class, 'calendar'])->name('academic-calendars.calendar');
+    Route::post('academic-calendars/quick-store', [Principal\AcademicCalendarsController::class, 'quickStore'])->name('academic-calendars.quick-store');
+    Route::patch('academic-calendars/{academicCalendar}/reschedule', [Principal\AcademicCalendarsController::class, 'reschedule'])->name('academic-calendars.reschedule');
+    Route::delete('academic-calendars/{academicCalendar}/quick-destroy', [Principal\AcademicCalendarsController::class, 'quickDestroy'])->name('academic-calendars.quick-destroy');
+    Route::resource('academic-calendars', Principal\AcademicCalendarsController::class);
+
+    // Academic Years Management Routes
+    Route::resource('academic-years', Principal\AcademicYearsController::class);
+    Route::post('academic-years/{academicYear}/restore', [Principal\AcademicYearsController::class, 'restore'])->name('academic-years.restore');
 
     // Teacher Management Routes
     Route::get('teachers', [Principal\TeachersController::class, 'index'])->name('teachers.index');
     Route::get('teachers/{teacher}', [Principal\TeachersController::class, 'show'])->name('teachers.show');
+    Route::get('teachers/{teacher}/edit', [Principal\TeachersController::class, 'edit'])->name('teachers.edit');
+    Route::put('teachers/{teacher}', [Principal\TeachersController::class, 'update'])->name('teachers.update');
+    Route::delete('teachers/{teacher}', [Principal\TeachersController::class, 'destroy'])->name('teachers.destroy');
+    Route::post('teachers/{teacher}/restore', [Principal\TeachersController::class, 'restore'])->name('teachers.restore');
     Route::post('teachers/{teacher}/devices', [Principal\TeacherDevicesController::class, 'store'])->name('teachers.devices.store');
     Route::put('teachers/devices/{device}', [Principal\TeacherDevicesController::class, 'update'])->name('teachers.devices.update');
     Route::delete('teachers/devices/{device}', [Principal\TeacherDevicesController::class, 'destroy'])->name('teachers.devices.destroy');
@@ -256,6 +274,7 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])
 
     Route::get('leave', [Teacher\LeaveController::class, 'index'])->name('leave.index');
     Route::post('leave', [Teacher\LeaveController::class, 'store'])->name('leave.store');
+    Route::get('leave/calendar', [Teacher\LeaveController::class, 'calendar'])->name('leave.calendar');
 
     Route::get('profile', [Teacher\ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile/name', [Teacher\ProfileController::class, 'updateName'])->name('profile.update-name');
