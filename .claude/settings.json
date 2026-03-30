@@ -44,7 +44,23 @@
       "Bash(composer require:*)",
       "Read(//i/website/school/**)",
       "Bash(npx create-next-app@latest ekort-nextjs --typescript --tailwind --app --src-dir --use-npm --import-alias '@/*' --eslint --no-git)",
-      "Bash(npx create-next-app@latest ekort-nextjs --typescript --tailwind --app --src-dir --use-npm --import-alias '@/*' --eslint)"
+      "Bash(npx create-next-app@latest ekort-nextjs --typescript --tailwind --app --src-dir --use-npm --import-alias '@/*' --eslint)",
+      "Bash(node scripts/batch-implement-pages.js --all-principal)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(timeout /t 2)",
+      "Bash(findstr \":3000\")",
+      "Bash(taskkill /PID 392 /F)",
+      "Bash(Get-Process -Id 392 -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Force)",
+      "Bash(taskkill /PID 22352 /F)",
+      "Bash(kill -9 392)",
+      "Bash(kill -9 22352)",
+      "Bash(kill -9 989 1048)",
+      "Bash(curl -I http://localhost:3001)",
+      "Bash(curl -s http://localhost:3001/login)",
+      "Bash(node scripts/batch-implement-pages.js --all)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -n \"status\\\\|is_active\\\\|active\" I:/website/school/ekort/database/migrations/*students*)"
     ],
     "additionalDirectories": [
       "I:\\website\\school\\ekort\\database\\seeders",
@@ -59,7 +75,9 @@
       "I:\\website\\school\\ekort\\resources\\js\\Pages\\Principal\\PakistaniSubjects",
       "I:\\website\\school\\ekort\\database\\migrations",
       "I:\\website\\school\\ekort\\resources\\js\\Pages\\Principal\\SubjectGroups",
-      "i:\\website\\school\\ekort-nextjs"
+      "i:\\website\\school\\ekort-nextjs",
+      "i:\\website\\school\\ekort-nextjs\\src\\app\\(principal)\\principal\\students\\[id]",
+      "i:\\website\\school\\ekort-nextjs\\src\\app\\(principal)\\principal\\teachers\\[id]"
     ]
   }
 }
