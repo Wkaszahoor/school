@@ -1,6 +1,7 @@
 ---
 deployment:
   tasks:
+    - /usr/local/cpanel/3rdparty/bin/composer install --no-dev --optimize-autoloader --no-interaction
     - /usr/local/bin/php artisan config:clear
     - /usr/local/bin/php artisan route:clear
     - /usr/local/bin/php artisan view:clear
