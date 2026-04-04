@@ -1,34 +1,53 @@
-# Laravel
+# Laravel core
 /vendor/
+/public/storage
+/storage/*.key
+
+# Environment files
 .env
 .env.backup
 .env.production
-.phpunit.result.cache
-/storage/*.key
-/public/storage
-/bootstrap/cache/*.php
-auth.json
+.env.*.backup
 
-# Node / Vite
-node_modules/
-npm-debug.log*
+# Composer
+composer.phar
+
+# NPM / Node
+/node_modules/
+npm-debug.log
 yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+yarn-error.log
+pnpm-debug.log
 *.local
 
-# Logs
-logs/
-*.log
+# Vite build output - keep public/build in git for server deployment
+# /public/build/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Laravel logs & cache
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*.php
+
+# PHPUnit
+.phpunit.result.cache
+
+# IDE files
+/.idea
+/.vscode/*
+!/.vscode/extensions.json
+/.fleet
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Misc
+*.log
+*.swp
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-/.fleet
