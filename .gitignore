@@ -1,24 +1,40 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Laravel core
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
 
-node_modules
-dist
-dist-ssr
-*.local
+# Environment files
+.env
+.env.backup
+.env.*.backup
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Composer
+composer.phar
+
+# NPM
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Laravel logs & cache
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*.php
+
+# PHPUnit
+.phpunit.result.cache
+
+# IDE files
+/.idea
+/.vscode
+
+# OS files
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+
+# Misc
+*.log
+*.swp
