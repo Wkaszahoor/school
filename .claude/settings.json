@@ -60,7 +60,12 @@
       "Bash(curl -s http://localhost:3001/login)",
       "Bash(node scripts/batch-implement-pages.js --all)",
       "Bash(xargs grep:*)",
-      "Bash(grep -n \"status\\\\|is_active\\\\|active\" I:/website/school/ekort/database/migrations/*students*)"
+      "Bash(grep -n \"status\\\\|is_active\\\\|active\" I:/website/school/ekort/database/migrations/*students*)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(git pull:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"Add .cpanel.yml for cPanel Git deployment:*)"
     ],
     "additionalDirectories": [
       "I:\\website\\school\\ekort\\database\\seeders",
