@@ -22,6 +22,7 @@ pnpm-debug.log
 
 # Vite build output - keep public/build in git for server deployment
 # /public/build/
+/public/hot
 
 # Laravel logs & cache
 /storage/logs/*
