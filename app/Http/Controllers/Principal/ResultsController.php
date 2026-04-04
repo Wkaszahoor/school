@@ -246,7 +246,7 @@ class ResultsController extends Controller
             ->where('exam_type',     $request->exam_type)
             ->where('academic_year', $request->academic_year)
             ->where('term',          $termValue)
-            ->where('approval_status', 'approved')
+            ->when(!$request->student_id, fn($q) => $q->where('approval_status', 'approved'))
             ->get();
 
         return $results
