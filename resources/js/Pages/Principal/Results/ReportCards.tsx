@@ -16,6 +16,25 @@ interface Props extends PageProps {
     classes: Array<{ id: number; class: string; section: string | null }>;
 }
 
+// Convert number to English words
+function numberToWords(n: number): string {
+    if (n === 0) return 'Zero';
+    const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+                  'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
+                  'Seventeen','Eighteen','Nineteen'];
+    const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    const chunk = (num: number): string => {
+        if (num < 20) return ones[num];
+        if (num < 100) return tens[Math.floor(num/10)] + (num % 10 ? ' ' + ones[num % 10] : '');
+        return ones[Math.floor(num/100)] + ' Hundred' + (num % 100 ? ' ' + chunk(num % 100) : '');
+    };
+    let result = '';
+    if (n >= 1000) { result += chunk(Math.floor(n/1000)) + ' Thousand '; n %= 1000; }
+    if (n >= 100)  { result += chunk(Math.floor(n/100))  + ' Hundred ';  n %= 100; }
+    if (n > 0)     { result += (result ? 'and ' : '') + chunk(n); }
+    return result.trim();
+}
+
 const gradeScale = [
     { range: '91–100', grade: 'A+' },
     { range: '81–90',  grade: 'A'  },
@@ -173,11 +192,6 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
                                         </div>
                                     </div>
 
-                                    {/* Class strip */}
-                                    <div style={{ textAlign: 'center', marginTop: 6, fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>
-                                        Class : {entry.student.class ? `${entry.student.class.class}${entry.student.class.section ? ` — ${entry.student.class.section}` : ''}` : '—'}
-                                        {entry.student.stream ? ` &nbsp;|&nbsp; Stream: ${entry.student.stream}` : ''}
-                                    </div>
                                 </div>
 
                                 {/* ── STUDENT INFO ── */}
@@ -247,13 +261,23 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
                                             ))}
                                             <tr className="total-row">
                                                 <td style={{ textAlign: 'left' }}>Attendance: —</td>
-                                                <td colSpan={1} style={{ fontWeight: 700 }}>Total Marks: {totalObtained} / {totalPossible}</td>
-                                                <td></td>
-                                                <td style={{ fontWeight: 700 }}>Percentage: {pct.toFixed(1)}%</td>
+                                                <td style={{ fontWeight: 700 }}>{totalObtained}</td>
+                                                <td style={{ fontWeight: 700 }}>{totalPossible}</td>
+                                                <td style={{ fontWeight: 700 }}>{totalObtained}</td>
                                                 <td style={{ fontWeight: 700 }}>{entry.summary.overall_grade}</td>
                                             </tr>
                                         </tbody>
                                     </table>
+
+                                    {/* Marks in words */}
+                                    <div style={{ border: '1px solid #555', borderTop: 'none', padding: '5px 10px', fontSize: 10, background: '#f9f9f9' }}>
+                                        <span style={{ fontWeight: 700 }}>Total Marks Obtained : </span>
+                                        {totalObtained} / {totalPossible} &nbsp;&nbsp;
+                                        <span style={{ fontWeight: 700 }}>In Words : </span>
+                                        {numberToWords(totalObtained)} out of {numberToWords(totalPossible)} Only
+                                        &nbsp;&nbsp;
+                                        <span style={{ fontWeight: 700 }}>Percentage : </span>{pct.toFixed(1)}%
+                                    </div>
                                 </div>
 
                                 {/* ── CO-SCHOLASTIC ── */}
