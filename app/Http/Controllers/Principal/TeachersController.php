@@ -31,7 +31,10 @@ class TeachersController extends Controller
             return $teacher;
         });
 
-        return Inertia::render('Principal/Teachers/Index', compact('teachers'));
+        return Inertia::render('Principal/Teachers/Index', [
+            'teachers' => $teachers,
+            'filters' => ['search' => $request->search],
+        ]);
     }
 
     public function show(TeacherProfile $teacher)

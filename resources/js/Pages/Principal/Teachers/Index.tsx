@@ -1,28 +1,31 @@
-import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import React, { useState, useRef } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 import { MagnifyingGlassIcon, EllipsisVerticalIcon, EyeIcon } from '@heroicons/react/24/outline';
 import AppLayout from '@/Layouts/AppLayout';
 import type { PageProps, TeacherProfile, PaginatedData } from '@/types';
 
+declare const route: (name: string, params?: any) => string;
+
 interface Props extends PageProps {
     teachers: PaginatedData<TeacherProfile>;
+    filters?: { search?: string };
 }
 
-export default function TeachersIndex({ teachers }: Props) {
+export default function TeachersIndex({ teachers, filters }: Props) {
     const [openMenu, setOpenMenu] = useState<number | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(filters?.search || '');
+    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchQuery(value);
-        // The search is handled by the backend via query string
-        const url = new URL(window.location.href);
-        if (value) {
-            url.searchParams.set('search', value);
-        } else {
-            url.searchParams.delete('search');
-        }
-        window.history.replaceState({}, '', url.toString());
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+            router.get(route('principal.teachers.index'), { search: value || undefined }, {
+                preserveState: true,
+                replace: true,
+            });
+        }, 350);
     };
 
     return (
