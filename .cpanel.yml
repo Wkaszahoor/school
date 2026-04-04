@@ -1,0 +1,22 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/dparcel/public_html/school
+    - /bin/cp -R public/. $DEPLOYPATH/public/
+    - /bin/cp -R app/. $DEPLOYPATH/app/
+    - /bin/cp -R bootstrap/. $DEPLOYPATH/bootstrap/
+    - /bin/cp -R config/. $DEPLOYPATH/config/
+    - /bin/cp -R database/. $DEPLOYPATH/database/
+    - /bin/cp -R resources/. $DEPLOYPATH/resources/
+    - /bin/cp -R routes/. $DEPLOYPATH/routes/
+    - /bin/cp -R storage/. $DEPLOYPATH/storage/
+    - /bin/cp -R vendor/. $DEPLOYPATH/vendor/
+    - /bin/cp artisan $DEPLOYPATH/artisan
+    - /bin/cp composer.json $DEPLOYPATH/composer.json
+    - /bin/cp composer.lock $DEPLOYPATH/composer.lock
+    - cd $DEPLOYPATH && /usr/local/bin/php artisan config:clear
+    - cd $DEPLOYPATH && /usr/local/bin/php artisan route:clear
+    - cd $DEPLOYPATH && /usr/local/bin/php artisan view:clear
+    - cd $DEPLOYPATH && /usr/local/bin/php artisan cache:clear
+    - cd $DEPLOYPATH && /usr/local/bin/php artisan config:cache
+    - cd $DEPLOYPATH && /usr/local/bin/php artisan route:cache

@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TeacherProfile extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'user_id', 'qualification', 'specialization', 'specialisation', 'joining_date', 'bio',
         'phone', 'cnic', 'gender', 'dob', 'certifications', 'experience_years',
-        'previous_school', 'achievements', 'date_joined', 'is_active',
+        'previous_school', 'achievements', 'date_joined', 'is_active', 'photo',
     ];
 
     protected $casts = [

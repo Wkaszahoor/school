@@ -100,6 +100,15 @@ export interface TeacherProfile {
     phone: string | null;
     qualification: string | null;
     specialisation: string | null;
+    specialization?: string | null;
+    dob: string | null;
+    gender: string | null;
+    cnic: string | null;
+    experience_years: number | null;
+    bio: string | null;
+    previous_school: string | null;
+    achievements: string | null;
+    photo: string | null;
     date_joined: string | null;
     is_active: boolean;
     primary_subject?: string;
@@ -221,17 +230,36 @@ export interface StudentReportCard {
 
 export interface LeaveRequest {
     id: number;
-    teacher_profile_id: number;
+    request_type: 'teacher' | 'student';
+    teacher_id: number | null;
+    student_id: number | null;
+    class_id?: number | null;
     from_date: string;
     to_date: string;
-    leave_type: string;
+    leave_type: 'casual' | 'annual' | 'emergency' | 'other' | null;
+    other_leave_type: string | null;
     reason: string;
-    status: 'pending' | 'approved' | 'rejected';
+    status: 'Pending' | 'Approved' | 'Rejected';
     approved_by: number | null;
     approved_at: string | null;
     remarks: string | null;
-    teacher?: TeacherProfile;
+    is_paid?: boolean | null;
+    approved_days?: number | null;
+    teacher?: User;
+    student?: Student;
+    days?: number;
     created_at: string;
+}
+
+export interface LeaveSetting {
+    id: number;
+    academic_year: string;
+    leave_type: 'casual' | 'annual' | 'emergency' | 'paid_total';
+    max_days: number;
+    is_paid: boolean;
+    created_by: number;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface LessonPlan {
@@ -466,4 +494,16 @@ export interface TeacherDevice {
     teacher?: User;
     created_at?: string;
     updated_at?: string;
+}
+
+export interface AcademicYear {
+    id: number;
+    year: string;
+    start_date: string;
+    end_date: string;
+    is_active: boolean;
+    description: string | null;
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
 }

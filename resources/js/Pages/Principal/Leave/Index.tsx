@@ -12,17 +12,25 @@ interface Props extends PageProps {
 }
 
 const STATUS_COLOR: Record<string, 'green' | 'red' | 'yellow'> = {
-    approved: 'green',
-    rejected: 'red',
-    pending:  'yellow',
+    'Approved': 'green',
+    'Rejected': 'red',
+    'Pending':  'yellow',
+};
+
+const LEAVE_TYPES: Record<string, string> = {
+    casual: 'Casual Leave',
+    annual: 'Annual Leave',
+    emergency: 'Emergency Leave',
+    other: 'Other',
 };
 
 export default function LeaveIndex({ leaves }: Props) {
     const [rejectLeave, setRejectLeave] = useState<LeaveRequest | null>(null);
+    const [approveRemarks, setApproveRemarks] = useState('');
     const { data, setData, post, processing, reset } = useForm({ remarks: '' });
 
     const handleApprove = (leave: LeaveRequest) => {
-        router.post(route('principal.leave.approve', leave.id));
+        router.post(route('principal.leave.approve', leave.id), { remarks: approveRemarks });
     };
 
     const handleRejectSubmit = (e: React.FormEvent) => {
@@ -87,14 +95,16 @@ export default function LeaveIndex({ leaves }: Props) {
                                         <td>
                                             <div className="flex items-center gap-2">
                                                 <div className="avatar-sm bg-purple-600">
-                                                    {leave.teacher?.user?.name?.charAt(0) ?? 'T'}
+                                                    {leave.teacher?.name?.charAt(0) ?? 'T'}
                                                 </div>
                                                 <span className="font-medium text-gray-900">
-                                                    {leave.teacher?.user?.name ?? '—'}
+                                                    {leave.teacher?.name ?? '—'}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="capitalize">{leave.leave_type}</td>
+                                        <td>
+                                            {leave.leave_type ? LEAVE_TYPES[leave.leave_type] : (leave.other_leave_type || '—')}
+                                        </td>
                                         <td>{new Date(leave.from_date).toLocaleDateString('en-GB')}</td>
                                         <td>{new Date(leave.to_date).toLocaleDateString('en-GB')}</td>
                                         <td>
@@ -109,7 +119,7 @@ export default function LeaveIndex({ leaves }: Props) {
                                             </Badge>
                                         </td>
                                         <td>
-                                            {leave.status === 'pending' && (
+                                            {leave.status === 'Pending' && (
                                                 <div className="flex items-center justify-end gap-1">
                                                     <button
                                                         onClick={() => handleApprove(leave)}
@@ -144,7 +154,7 @@ export default function LeaveIndex({ leaves }: Props) {
                 <form onSubmit={handleRejectSubmit} className="space-y-4">
                     <p className="text-sm text-gray-600">
                         You are rejecting the leave request for{' '}
-                        <strong>{rejectLeave?.teacher?.user?.name}</strong>.
+                        <strong>{rejectLeave?.teacher?.name}</strong>.
                     </p>
                     <div className="form-group">
                         <label className="form-label">Reason for Rejection <span className="text-red-500">*</span></label>

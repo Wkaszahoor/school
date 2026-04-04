@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeftIcon, PencilSquareIcon, CalendarDaysIcon, AcademicCapIcon, ShieldExclamationIcon, DocumentArrowDownIcon, TrashIcon, MagnifyingGlassIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PencilSquareIcon, CalendarDaysIcon, AcademicCapIcon, ShieldExclamationIcon, DocumentArrowDownIcon, TrashIcon, MagnifyingGlassIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import AppLayout from '@/Layouts/AppLayout';
 import Badge from '@/Components/Badge';
 import AttendanceReport from '@/Components/AttendanceReport';
@@ -21,16 +21,23 @@ interface Props extends PageProps {
     attendanceReport: any[];
     subjectWiseSummary: any[];
     monthWiseSummary: any[];
+    resultsSummary: any[];
+    resultsBySubject: any[];
+    resultsByAcademicYear: any[];
+    disciplineSummary: any[];
+    disciplineStats: { total: number; warnings: number; achievements: number; suspensions: number; others: number };
+    timeline: any[];
 }
 
-export default function PrincipalStudentShow({ student, attendanceSummary, monthAttendance, attendanceReport, subjectWiseSummary, monthWiseSummary }: Props) {
+export default function PrincipalStudentShow({ student, attendanceSummary, monthAttendance, attendanceReport, subjectWiseSummary, monthWiseSummary, resultsSummary, resultsBySubject, resultsByAcademicYear, disciplineSummary, disciplineStats, timeline }: Props) {
     const initials = student.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
     const [currentMonth, setCurrentMonth] = React.useState(new Date());
     const [viewMode, setViewMode] = React.useState<'month' | 'quarter' | 'year' | 'custom'>('month');
     const [customStartDate, setCustomStartDate] = React.useState('');
     const [customEndDate, setCustomEndDate] = React.useState('');
-    const [activeTab, setActiveTab] = React.useState<'overview' | 'report'>('overview');
+    const [activeTab, setActiveTab] = React.useState<'overview' | 'report' | 'results' | 'discipline' | 'timeline'>('overview');
     const [searchQuery, setSearchQuery] = useState('');
+    const [showImageModal, setShowImageModal] = useState(false);
 
     const handleDelete = () => {
         if (confirm(`Delete "${student.full_name}"? This action cannot be undone.`)) {
@@ -164,13 +171,20 @@ export default function PrincipalStudentShow({ student, attendanceSummary, month
 
             <div className="max-w-7xl mx-auto">
                 <div className="page-header flex-col gap-4 sm:flex-row">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1">
                         <Link href={route('principal.students.index')} className="btn-ghost btn-icon">
                             <ArrowLeftIcon className="w-5 h-5" />
                         </Link>
                         <div>
                             <h1 className="page-title">{student.full_name}</h1>
-                            <p className="page-subtitle">{student.admission_no} · {student.class?.name}</p>
+                            <p className="page-subtitle">
+                                {student.admission_no} · {student.class?.name}
+                                {student.subject_group && (
+                                    <span className="ml-2 inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
+                                        {student.subject_group.group_name}
+                                    </span>
+                                )}
+                            </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 flex-1 sm:justify-center">
@@ -216,27 +230,24 @@ export default function PrincipalStudentShow({ student, attendanceSummary, month
             )}
 
             {/* Tab Navigation */}
-            <div className="flex gap-2 border-b border-gray-200 mb-5">
-                <button
-                    onClick={() => setActiveTab('overview')}
-                    className={`px-4 py-3 font-medium border-b-2 transition ${
-                        activeTab === 'overview'
-                            ? 'text-indigo-600 border-indigo-600'
-                            : 'text-gray-600 border-transparent hover:text-gray-900'
-                    }`}
-                >
-                    Overview
-                </button>
-                <button
-                    onClick={() => setActiveTab('report')}
-                    className={`px-4 py-3 font-medium border-b-2 transition ${
-                        activeTab === 'report'
-                            ? 'text-indigo-600 border-indigo-600'
-                            : 'text-gray-600 border-transparent hover:text-gray-900'
-                    }`}
-                >
-                    Attendance Report
-                </button>
+            <div className="flex gap-2 border-b border-gray-200 mb-5 overflow-x-auto">
+                {['overview', 'report', 'results', 'discipline', 'timeline'].map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab as any)}
+                        className={`px-4 py-3 font-medium border-b-2 transition whitespace-nowrap ${
+                            activeTab === tab
+                                ? 'text-indigo-600 border-indigo-600'
+                                : 'text-gray-600 border-transparent hover:text-gray-900'
+                        }`}
+                    >
+                        {tab === 'overview' && 'Overview'}
+                        {tab === 'report' && 'Attendance Report'}
+                        {tab === 'results' && 'Academic Results'}
+                        {tab === 'discipline' && 'Discipline'}
+                        {tab === 'timeline' && 'History'}
+                    </button>
+                ))}
             </div>
 
             {/* Overview Tab */}
@@ -245,7 +256,10 @@ export default function PrincipalStudentShow({ student, attendanceSummary, month
                 {/* Profile */}
                 <div className="card">
                     <div className="card-body flex flex-col items-center text-center gap-4">
-                        <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-2xl font-bold text-indigo-600">
+                        <div
+                            className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-2xl font-bold text-indigo-600 cursor-pointer hover:ring-4 hover:ring-indigo-300 transition"
+                            onClick={() => student.photo && setShowImageModal(true)}
+                        >
                             {student.photo ? (
                                 <img src={`/storage/${student.photo}`} className="w-full h-full rounded-full object-cover" alt="" />
                             ) : initials}
@@ -260,12 +274,12 @@ export default function PrincipalStudentShow({ student, attendanceSummary, month
                                 <span className="text-gray-500">Class</span>
                                 <span className="font-medium">{student.class?.name}{student.class?.section ? ` — ${student.class.section}` : ''}</span>
                             </div>
-                            {student.subject_group && (
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">Group</span>
-                                    <span className="font-medium">{student.subject_group.name}</span>
+                            {student.subject_group ? (
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Stream/Group</span>
+                                    <span className="font-bold px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs">{student.subject_group.group_name}</span>
                                 </div>
-                            )}
+                            ) : null}
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Gender</span>
                                 <span className="font-medium capitalize">{student.gender}</span>
@@ -280,6 +294,37 @@ export default function PrincipalStudentShow({ student, attendanceSummary, month
                                     <Badge color="red">{student.blood_group}</Badge>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Academic Year & Session */}
+                        <div className="w-full bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-4 border-2 border-indigo-300">
+                            <p className="text-xs font-semibold text-indigo-600 uppercase mb-3">📚 Academic Information</p>
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="text-xs text-indigo-600 font-medium">Current Session</p>
+                                    <p className="text-lg font-bold text-indigo-700">{student.class?.academic_year || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-indigo-600 font-medium">Class</p>
+                                    <p className="text-sm font-semibold text-gray-900">{student.class?.class || 'N/A'}{student.class?.section ? ` - ${student.class.section}` : ''}</p>
+                                </div>
+                                {student.subject_group ? (
+                                    <div className="pt-2 border-t border-indigo-200">
+                                        <p className="text-xs text-indigo-600 font-medium mb-1">🎯 Group/Stream</p>
+                                        <div className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold text-sm">
+                                            {student.subject_group.group_name}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="pt-2 border-t border-indigo-200">
+                                        <p className="text-xs text-gray-500">No group/stream assigned</p>
+                                    </div>
+                                )}
+                                <div>
+                                    <p className="text-xs text-indigo-600 font-medium">Joined KORT</p>
+                                    <p className="text-sm font-semibold text-gray-900">{student.join_date_kort ? new Date(student.join_date_kort).toLocaleDateString() : 'N/A'}</p>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Attendance Rate */}
@@ -826,6 +871,223 @@ export default function PrincipalStudentShow({ student, attendanceSummary, month
                         subjectWiseSummary={subjectWiseSummary}
                         monthWiseSummary={monthWiseSummary}
                     />
+                )}
+
+                {/* Academic Results Tab */}
+                {activeTab === 'results' && (
+                    <div className="space-y-6">
+                        {/* Results by Academic Year */}
+                        {resultsByAcademicYear.length > 0 ? (
+                            resultsByAcademicYear.map((yearData: any) => (
+                                <div key={yearData.academic_year}>
+                                    {/* Year Header */}
+                                    <div className="mb-4 pb-3 border-b-2 border-indigo-600">
+                                        <h3 className="text-2xl font-bold text-indigo-600">Session: {yearData.academic_year}</h3>
+                                    </div>
+
+                                    {/* Results Table for Year */}
+                                    <div className="card mb-6">
+                                        <div className="card-body">
+                                            {yearData.results.length > 0 ? (
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-sm">
+                                                        <thead className="bg-gray-50 border-b">
+                                                            <tr>
+                                                                <th className="px-4 py-2 text-left font-semibold text-gray-700">Subject</th>
+                                                                <th className="px-4 py-2 text-left font-semibold text-gray-700">Exam Type</th>
+                                                                <th className="px-4 py-2 text-left font-semibold text-gray-700">Term</th>
+                                                                <th className="px-4 py-2 text-center font-semibold text-gray-700">Marks</th>
+                                                                <th className="px-4 py-2 text-center font-semibold text-gray-700">%</th>
+                                                                <th className="px-4 py-2 text-center font-semibold text-gray-700">Grade</th>
+                                                                <th className="px-4 py-2 text-center font-semibold text-gray-700">GPA</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y">
+                                                            {yearData.results.map((result: any) => (
+                                                                <tr key={result.id} className="hover:bg-gray-50">
+                                                                    <td className="px-4 py-3 font-medium text-gray-900">{result.subject_name}</td>
+                                                                    <td className="px-4 py-3 text-gray-600">{result.exam_type}</td>
+                                                                    <td className="px-4 py-3 text-gray-600">{result.term}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-700">{result.obtained_marks}/{result.total_marks}</td>
+                                                                    <td className="px-4 py-3 text-center">
+                                                                        <span className="font-semibold text-indigo-600">{result.percentage}%</span>
+                                                                    </td>
+                                                                    <td className="px-4 py-3 text-center">
+                                                                        <span className="inline-block px-3 py-1 rounded-full font-bold text-white" style={{
+                                                                            backgroundColor: result.grade === 'A' ? '#10b981' : result.grade === 'B' ? '#3b82f6' : result.grade === 'C' ? '#f59e0b' : result.grade === 'D' ? '#f97316' : '#ef4444'
+                                                                        }}>
+                                                                            {result.grade}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-4 py-3 text-center font-medium text-gray-900">{result.gpa_point ? parseFloat(result.gpa_point).toFixed(2) : '—'}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-500 text-center py-4">No results for this session</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="card">
+                                <div className="card-body text-center py-8">
+                                    <p className="text-gray-500">No academic results available</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Discipline Tab */}
+                {activeTab === 'discipline' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        {/* Statistics */}
+                        <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+                            <div className="card bg-blue-50">
+                                <div className="card-body text-center">
+                                    <p className="text-3xl font-bold text-blue-600">{disciplineStats.total}</p>
+                                    <p className="text-sm text-blue-700 font-medium">Total Records</p>
+                                </div>
+                            </div>
+                            <div className="card bg-green-50">
+                                <div className="card-body text-center">
+                                    <p className="text-3xl font-bold text-green-600">{disciplineStats.achievements}</p>
+                                    <p className="text-sm text-green-700 font-medium">Achievements</p>
+                                </div>
+                            </div>
+                            <div className="card bg-yellow-50">
+                                <div className="card-body text-center">
+                                    <p className="text-3xl font-bold text-yellow-600">{disciplineStats.warnings}</p>
+                                    <p className="text-sm text-yellow-700 font-medium">Warnings</p>
+                                </div>
+                            </div>
+                            <div className="card bg-red-50">
+                                <div className="card-body text-center">
+                                    <p className="text-3xl font-bold text-red-600">{disciplineStats.suspensions}</p>
+                                    <p className="text-sm text-red-700 font-medium">Suspensions</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Records List */}
+                        <div className="lg:col-span-3">
+                            <div className="card">
+                                <div className="card-header">
+                                    <p className="card-title">Discipline Records</p>
+                                </div>
+                                <div className="card-body">
+                                    {disciplineSummary.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {disciplineSummary.map((record: any) => (
+                                                <div key={record.id} className="p-4 border-l-4 bg-gray-50 rounded"
+                                                    style={{ borderColor: record.severity === 'high' ? '#ef4444' : record.severity === 'medium' ? '#f59e0b' : '#3b82f6' }}>
+                                                    <div className="flex items-start justify-between mb-2">
+                                                        <h4 className="font-semibold text-gray-900">{record.title}</h4>
+                                                        <span className={`px-2 py-1 text-xs font-medium rounded capitalize ${
+                                                            record.category === 'achievement' ? 'bg-green-100 text-green-700' :
+                                                            record.category === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                                                            record.category === 'suspension' ? 'bg-red-100 text-red-700' :
+                                                            'bg-gray-100 text-gray-700'
+                                                        }`}>
+                                                            {record.category}
+                                                        </span>
+                                                    </div>
+                                                    {record.description && <p className="text-sm text-gray-600 mb-2">{record.description}</p>}
+                                                    <div className="flex gap-4 text-xs text-gray-500">
+                                                        <span>Date: {new Date(record.incident_date).toLocaleDateString()}</span>
+                                                        <span className={`font-medium capitalize ${
+                                                            record.severity === 'high' ? 'text-red-600' :
+                                                            record.severity === 'medium' ? 'text-yellow-600' : 'text-blue-600'
+                                                        }`}>{record.severity} severity</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-gray-500 text-center py-8">No discipline records</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* History Timeline Tab */}
+                {activeTab === 'timeline' && (
+                    <div className="card">
+                        <div className="card-header">
+                            <p className="card-title">Student Timeline</p>
+                        </div>
+                        <div className="card-body">
+                            {timeline.length > 0 ? (
+                                <div className="relative">
+                                    {/* Timeline line */}
+                                    <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-600 via-indigo-400 to-gray-200" />
+
+                                    {/* Timeline items */}
+                                    <div className="space-y-6">
+                                        {timeline.map((event: any, idx: number) => (
+                                            <div key={idx} className="pl-20 relative">
+                                                {/* Dot */}
+                                                <div className="absolute left-0 w-14 h-14 flex items-center justify-center text-2xl">
+                                                    <div className="w-14 h-14 rounded-full bg-white border-4 border-indigo-600 flex items-center justify-center">
+                                                        {event.icon}
+                                                    </div>
+                                                </div>
+
+                                                {/* Content */}
+                                                <div className="p-4 bg-gradient-to-r from-indigo-50 to-white rounded-lg border border-indigo-100">
+                                                    <div className="flex items-start justify-between mb-1">
+                                                        <h4 className="font-semibold text-gray-900">{event.title}</h4>
+                                                        <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full text-white ${event.color}`}>
+                                                            {event.badge}
+                                                        </span>
+                                                    </div>
+                                                    {event.subtitle && <p className="text-sm text-gray-600 mb-2">{event.subtitle}</p>}
+                                                    <p className="text-xs text-gray-500">{new Date(event.date).toLocaleDateString()} • {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 text-center py-8">No timeline events</p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Image Popup Modal */}
+                {showImageModal && student.photo && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4" onClick={() => setShowImageModal(false)}>
+                        <div className="relative max-w-2xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setShowImageModal(false)}
+                                className="absolute -top-10 right-0 text-white hover:text-gray-300 transition"
+                            >
+                                <XMarkIcon className="w-8 h-8" />
+                            </button>
+
+                            {/* Image */}
+                            <img
+                                src={`/storage/${student.photo}`}
+                                alt={student.full_name}
+                                className="w-full h-auto rounded-lg shadow-2xl max-h-[90vh] object-contain"
+                            />
+
+                            {/* Student Info Below Image */}
+                            <div className="mt-4 bg-white rounded-lg p-4 text-center">
+                                <p className="text-lg font-bold text-gray-900">{student.full_name}</p>
+                                <p className="text-sm text-gray-600">{student.admission_no}</p>
+                                <p className="text-sm text-gray-500 mt-1">{student.class?.name}{student.class?.section ? ` — ${student.class.section}` : ''}</p>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </AppLayout>

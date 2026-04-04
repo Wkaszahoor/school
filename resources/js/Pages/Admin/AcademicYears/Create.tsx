@@ -1,0 +1,119 @@
+import React from 'react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import AppLayout from '@/Layouts/AppLayout';
+import type { PageProps } from '@/types';
+
+export default function AdminCreateAcademicYear() {
+    const { data, setData, post, processing, errors } = useForm({
+        year: '',
+        start_date: '',
+        end_date: '',
+        is_active: true,
+        description: '',
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route('admin.academic-years.store'));
+    };
+
+    return (
+        <AppLayout title="Create Academic Year">
+            <Head title="Create Academic Year" />
+
+            <div className="page-header">
+                <div className="flex items-center gap-3">
+                    <Link href={route('admin.academic-years.index')} className="btn-ghost btn-icon">
+                        <ArrowLeftIcon className="w-5 h-5" />
+                    </Link>
+                    <div>
+                        <h1 className="page-title">Create Academic Year</h1>
+                        <p className="page-subtitle">Add a new academic year to the system</p>
+                    </div>
+                </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="max-w-2xl">
+                <div className="space-y-5">
+                    {/* Basic Information */}
+                    <div className="card">
+                        <div className="card-header"><p className="card-title">Academic Year Details</p></div>
+                        <div className="card-body space-y-4">
+                            <div className="form-group">
+                                <label className="form-label">Academic Year *</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g., 2025-26"
+                                    className="form-input"
+                                    value={data.year}
+                                    onChange={(e) => setData('year', e.target.value)}
+                                />
+                                {errors.year && <p className="text-red-600 text-sm mt-1">{errors.year}</p>}
+                                <p className="text-xs text-gray-500 mt-1">Format: YYYY-YY (e.g., 2025-26)</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="form-group">
+                                    <label className="form-label">Start Date *</label>
+                                    <input
+                                        type="date"
+                                        className="form-input"
+                                        value={data.start_date}
+                                        onChange={(e) => setData('start_date', e.target.value)}
+                                    />
+                                    {errors.start_date && <p className="text-red-600 text-sm mt-1">{errors.start_date}</p>}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">End Date *</label>
+                                    <input
+                                        type="date"
+                                        className="form-input"
+                                        value={data.end_date}
+                                        onChange={(e) => setData('end_date', e.target.value)}
+                                    />
+                                    {errors.end_date && <p className="text-red-600 text-sm mt-1">{errors.end_date}</p>}
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Description</label>
+                                <textarea
+                                    className="form-textarea"
+                                    rows={3}
+                                    placeholder="Add any notes or description for this academic year"
+                                    value={data.description}
+                                    onChange={(e) => setData('description', e.target.value)}
+                                />
+                                {errors.description && <p className="text-red-600 text-sm mt-1">{errors.description}</p>}
+                            </div>
+
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_active}
+                                    onChange={(e) => setData('is_active', e.target.checked)}
+                                    className="w-4 h-4 text-indigo-600 rounded"
+                                />
+                                <span className="text-sm font-semibold text-gray-700">Set as Active</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Submit Buttons */}
+                    <div className="card">
+                        <div className="card-body space-y-3">
+                            <button type="submit" disabled={processing} className="btn-primary w-full">
+                                {processing ? 'Creating…' : 'Create Academic Year'}
+                            </button>
+                            <Link href={route('admin.academic-years.index')} className="btn-secondary w-full text-center">
+                                Cancel
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </AppLayout>
+    );
+}

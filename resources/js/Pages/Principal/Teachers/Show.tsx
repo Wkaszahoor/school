@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeftIcon, MagnifyingGlassIcon, XCircleIcon, BookOpenIcon } from '@heroicons/react/24/outline';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeftIcon, MagnifyingGlassIcon, XCircleIcon, BookOpenIcon, PencilSquareIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import AppLayout from '@/Layouts/AppLayout';
 import Badge from '@/Components/Badge';
 import TeacherDevicesCard from '@/Components/TeacherDevicesCard';
@@ -9,11 +9,13 @@ import type { PageProps, TeacherProfile, TeacherDevice } from '@/types';
 interface Props extends PageProps {
     teacher: TeacherProfile;
     devices: TeacherDevice[];
+    subjectAssignments: any[];
 }
 
-export default function ShowTeacher({ teacher, devices }: Props) {
+export default function ShowTeacher({ teacher, devices, subjectAssignments }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshKey, setRefreshKey] = useState(0);
+    const [showImageModal, setShowImageModal] = useState(false);
 
     // Filter assignments based on search query
     const filteredAssignments = useMemo(() => {
@@ -30,13 +32,19 @@ export default function ShowTeacher({ teacher, devices }: Props) {
         setRefreshKey(k => k + 1);
     };
 
+    const handleDelete = () => {
+        if (confirm(`Archive "${teacher.user?.name}"? This action can be undone from the teacher list.`)) {
+            router.delete(route('principal.teachers.destroy', teacher.id));
+        }
+    };
+
     return (
         <AppLayout title={teacher.user?.name ?? 'Teacher'}>
             <Head title={teacher.user?.name ?? 'Teacher'} />
 
             <div className="max-w-7xl mx-auto">
                 <div className="page-header flex-col gap-4 sm:flex-row">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1">
                         <Link href={route('principal.teachers.index')} className="btn-ghost btn-icon">
                             <ArrowLeftIcon className="w-5 h-5" />
                         </Link>
@@ -45,25 +53,34 @@ export default function ShowTeacher({ teacher, devices }: Props) {
                             <p className="page-subtitle">{teacher.employee_id} · {teacher.specialisation}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-1 sm:justify-center">
-                        <div className="relative flex-1 max-w-xs">
-                            <input
-                                type="text"
-                                placeholder="Search assignments..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="form-input pl-10 pr-9"
-                            />
-                            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    <XCircleIcon className="w-4 h-4" />
-                                </button>
-                            )}
-                        </div>
+                    <div className="flex items-center gap-2">
+                        <Link href={route('principal.teachers.edit', teacher.id)} className="btn-secondary">
+                            <PencilSquareIcon className="w-4 h-4" /> Edit
+                        </Link>
+                        <button onClick={handleDelete} className="btn-secondary text-red-600 hover:text-red-700">
+                            <TrashIcon className="w-4 h-4" /> Archive
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-1 sm:justify-center mb-5">
+                    <div className="relative flex-1 max-w-xs">
+                        <input
+                            type="text"
+                            placeholder="Search assignments..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="form-input pl-10 pr-9"
+                        />
+                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            >
+                                <XCircleIcon className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -71,29 +88,69 @@ export default function ShowTeacher({ teacher, devices }: Props) {
                     {/* Profile Card */}
                     <div className="card">
                         <div className="card-body flex flex-col items-center text-center gap-4">
-                            <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-2xl font-bold text-indigo-600">
-                                {teacher.user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            {/* Photo */}
+                            <div
+                                className="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center text-3xl font-bold text-indigo-600 cursor-pointer hover:ring-4 hover:ring-indigo-300 transition overflow-hidden"
+                                onClick={() => teacher.photo && setShowImageModal(true)}
+                            >
+                                {teacher.photo ? (
+                                    <img src={`/storage/${teacher.photo}`} alt={teacher.user?.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    teacher.user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                                )}
                             </div>
                             <div>
                                 <p className="text-lg font-bold text-gray-900">{teacher.user?.name}</p>
                                 <p className="text-sm text-gray-500">{teacher.user?.email}</p>
                             </div>
-                            <div className="w-full space-y-2 text-sm">
+
+                            {/* Personal Information */}
+                            <div className="w-full bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                                <p className="font-semibold text-gray-900 mb-3">Personal Information</p>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Employee ID</span>
-                                    <span className="font-mono font-medium">{teacher.employee_id}</span>
+                                    <span className="text-gray-600">Gender</span>
+                                    <span className="font-medium capitalize">{teacher.gender || '—'}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Phone</span>
+                                    <span className="text-gray-600">Date of Birth</span>
+                                    <span className="font-medium">{teacher.dob || '—'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Phone</span>
                                     <span className="font-medium">{teacher.phone || '—'}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Status</span>
-                                    <Badge color={teacher.is_active ? 'green' : 'gray'}>{teacher.is_active ? 'Active' : 'Inactive'}</Badge>
+                                    <span className="text-gray-600">CNIC</span>
+                                    <span className="font-medium">{teacher.cnic || '—'}</span>
+                                </div>
+                            </div>
+
+                            {/* Academic Information */}
+                            <div className="w-full bg-blue-50 rounded-lg p-3 space-y-2 text-sm">
+                                <p className="font-semibold text-gray-900 mb-3">Academic Information</p>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Employee ID</span>
+                                    <span className="font-mono font-medium">{teacher.employee_id}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-gray-500">Joined</span>
+                                    <span className="text-gray-600">Qualification</span>
+                                    <span className="font-medium">{teacher.qualification || '—'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Specialization</span>
+                                    <span className="font-medium">{teacher.specialisation || '—'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Experience</span>
+                                    <span className="font-medium">{teacher.experience_years ? `${teacher.experience_years} years` : '—'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Joined</span>
                                     <span className="font-medium">{teacher.date_joined || '—'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Status</span>
+                                    <Badge color={teacher.is_active ? 'green' : 'gray'}>{teacher.is_active ? 'Active' : 'Inactive'}</Badge>
                                 </div>
                             </div>
                         </div>
@@ -162,6 +219,35 @@ export default function ShowTeacher({ teacher, devices }: Props) {
                     </div>
                 </div>
             </div>
+
+            {/* Photo Modal */}
+            {showImageModal && teacher.photo && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4" onClick={() => setShowImageModal(false)}>
+                    <div className="relative max-w-2xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setShowImageModal(false)}
+                            className="absolute -top-10 right-0 text-white hover:text-gray-300 transition"
+                        >
+                            <XMarkIcon className="w-8 h-8" />
+                        </button>
+
+                        {/* Image */}
+                        <img
+                            src={`/storage/${teacher.photo}`}
+                            alt={teacher.user?.name}
+                            className="w-full h-auto rounded-lg shadow-2xl max-h-[90vh] object-contain"
+                        />
+
+                        {/* Teacher Info Below Image */}
+                        <div className="mt-4 bg-white rounded-lg p-4 text-center">
+                            <p className="text-lg font-bold text-gray-900">{teacher.user?.name}</p>
+                            <p className="text-sm text-gray-600">{teacher.employee_id}</p>
+                            <p className="text-sm text-gray-500 mt-1">{teacher.specialisation}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }

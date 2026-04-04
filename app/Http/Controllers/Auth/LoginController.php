@@ -50,4 +50,56 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+
+    /**
+     * API endpoint for Next.js frontend authentication
+     * Returns JSON with user data and Sanctum token
+     */
+    public function apiLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (!Auth::attempt($credentials)) {
+            return response()->json([
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        $user = Auth::user();
+
+        if (!$user->is_active) {
+            Auth::logout();
+            return response()->json([
+                'message' => 'Your account has been deactivated.'
+            ], 403);
+        }
+
+        $user->update(['last_login_at' => now()]);
+
+        // Create Sanctum token
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'role'       => $user->role,
+                'avatar'     => $user->avatar,
+            ]
+        ]);
+    }
+
+    /**
+     * API endpoint for Next.js frontend logout
+     */
+    public function apiLogout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logged out successfully']);
+    }
 }

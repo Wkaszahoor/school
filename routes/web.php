@@ -65,6 +65,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('holidays', Admin\HolidayController::class);
     Route::get('holidays/calendar/view', [Admin\HolidayController::class, 'calendar'])->name('holidays.calendar');
     Route::resource('holiday-types', Admin\HolidayTypeController::class);
+
+    // Academic Years Management
+    Route::resource('academic-years', Admin\AcademicYearsController::class);
+    Route::post('academic-years/{academicYear}/restore', [Admin\AcademicYearsController::class, 'restore'])->name('academic-years.restore');
 });
 
 // ─── Principal ───────────────────────────────────────────────────────────────
@@ -78,7 +82,14 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
     Route::get('attendance-report', [Principal\AttendanceReportController::class, 'index'])->name('attendance-report.index');
     Route::get('attendance-performance', [Principal\AttendancePerformanceController::class, 'index'])->name('attendance-performance.index');
 
+    // Analytics
+    Route::get('analytics/student-results', [Principal\AnalyticsController::class, 'studentResults'])->name('analytics.student-results');
+    Route::get('analytics/teacher-performance', [Principal\AnalyticsController::class, 'teacherPerformance'])->name('analytics.teacher-performance');
+
     Route::get('leave', [Principal\LeaveController::class, 'index'])->name('leave.index');
+    Route::get('leave/calendar', [Principal\LeaveController::class, 'calendar'])->name('leave.calendar');
+    Route::get('leave/settings', [Principal\LeaveController::class, 'settingsIndex'])->name('leave.settings');
+    Route::post('leave/settings', [Principal\LeaveController::class, 'settingsStore'])->name('leave.settings.store');
     Route::post('leave/{leave}/approve', [Principal\LeaveController::class, 'approve'])->name('leave.approve');
     Route::post('leave/{leave}/reject', [Principal\LeaveController::class, 'reject'])->name('leave.reject');
 
@@ -176,12 +187,23 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
     Route::delete('teacher-availabilities/{availability}', [Principal\TeacherAvailabilitiesController::class, 'destroy'])->name('teacher-availabilities.destroy');
 
     // Academic Calendar Routes
-    Route::resource('academic-calendars', Principal\AcademicCalendarsController::class);
     Route::get('academic-calendars/calendar/view', [Principal\AcademicCalendarsController::class, 'calendar'])->name('academic-calendars.calendar');
+    Route::post('academic-calendars/quick-store', [Principal\AcademicCalendarsController::class, 'quickStore'])->name('academic-calendars.quick-store');
+    Route::patch('academic-calendars/{academicCalendar}/reschedule', [Principal\AcademicCalendarsController::class, 'reschedule'])->name('academic-calendars.reschedule');
+    Route::delete('academic-calendars/{academicCalendar}/quick-destroy', [Principal\AcademicCalendarsController::class, 'quickDestroy'])->name('academic-calendars.quick-destroy');
+    Route::resource('academic-calendars', Principal\AcademicCalendarsController::class);
+
+    // Academic Years Management Routes
+    Route::resource('academic-years', Principal\AcademicYearsController::class);
+    Route::post('academic-years/{academicYear}/restore', [Principal\AcademicYearsController::class, 'restore'])->name('academic-years.restore');
 
     // Teacher Management Routes
     Route::get('teachers', [Principal\TeachersController::class, 'index'])->name('teachers.index');
     Route::get('teachers/{teacher}', [Principal\TeachersController::class, 'show'])->name('teachers.show');
+    Route::get('teachers/{teacher}/edit', [Principal\TeachersController::class, 'edit'])->name('teachers.edit');
+    Route::put('teachers/{teacher}', [Principal\TeachersController::class, 'update'])->name('teachers.update');
+    Route::delete('teachers/{teacher}', [Principal\TeachersController::class, 'destroy'])->name('teachers.destroy');
+    Route::post('teachers/{teacher}/restore', [Principal\TeachersController::class, 'restore'])->name('teachers.restore');
     Route::post('teachers/{teacher}/devices', [Principal\TeacherDevicesController::class, 'store'])->name('teachers.devices.store');
     Route::put('teachers/devices/{device}', [Principal\TeacherDevicesController::class, 'update'])->name('teachers.devices.update');
     Route::delete('teachers/devices/{device}', [Principal\TeacherDevicesController::class, 'destroy'])->name('teachers.devices.destroy');
@@ -216,6 +238,19 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
         Route::get('pbl-assignments/{assignment}/submissions', [Principal\PBLAssignmentsController::class, 'viewSubmissions'])->name('pbl-assignments.submissions');
         Route::post('pbl-assignments/{assignment}/groups', [Principal\PBLAssignmentsController::class, 'createGroup'])->name('pbl-assignments.create-group');
         Route::post('pbl-submissions/{submission}/evaluate', [Principal\PBLAssignmentsController::class, 'evaluateSubmission'])->name('pbl-submissions.evaluate');
+
+        // Proficiency Tests
+        Route::get('proficiency-tests', [Principal\ProficiencyTestsController::class, 'index'])->name('proficiency-tests.index');
+        Route::get('proficiency-tests/create', [Principal\ProficiencyTestsController::class, 'create'])->name('proficiency-tests.create');
+        Route::post('proficiency-tests', [Principal\ProficiencyTestsController::class, 'store'])->name('proficiency-tests.store');
+        Route::get('proficiency-tests/{proficiencyTest}', [Principal\ProficiencyTestsController::class, 'show'])->name('proficiency-tests.show');
+        Route::get('proficiency-tests/{proficiencyTest}/edit', [Principal\ProficiencyTestsController::class, 'edit'])->name('proficiency-tests.edit');
+        Route::put('proficiency-tests/{proficiencyTest}', [Principal\ProficiencyTestsController::class, 'update'])->name('proficiency-tests.update');
+        Route::delete('proficiency-tests/{proficiencyTest}', [Principal\ProficiencyTestsController::class, 'destroy'])->name('proficiency-tests.destroy');
+        Route::get('proficiency-tests/{proficiencyTest}/assign', [Principal\ProficiencyTestsController::class, 'assign'])->name('proficiency-tests.assign');
+        Route::post('proficiency-tests/{proficiencyTest}/assign', [Principal\ProficiencyTestsController::class, 'storeAssignment'])->name('proficiency-tests.store-assignment');
+        Route::delete('proficiency-tests/{proficiencyTest}/assign/{user}', [Principal\ProficiencyTestsController::class, 'removeAssignment'])->name('proficiency-tests.remove-assignment');
+        Route::post('proficiency-test-answers/{answer}/grade', [Principal\ProficiencyTestsController::class, 'gradeEssay'])->name('proficiency-tests.grade-essay');
 
         // Certifications
         Route::get('certifications', [Principal\CertificationsController::class, 'index'])->name('certifications.index');
@@ -253,6 +288,10 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])
     Route::get('attendance-criteria', [Teacher\AttendanceCriteriaController::class, 'index'])->name('attendance-criteria.index');
     Route::post('attendance-criteria', [Teacher\AttendanceCriteriaController::class, 'store'])->name('attendance-criteria.store');
     Route::delete('attendance-criteria', [Teacher\AttendanceCriteriaController::class, 'destroy'])->name('attendance-criteria.destroy');
+
+    Route::get('leave', [Teacher\LeaveController::class, 'index'])->name('leave.index');
+    Route::post('leave', [Teacher\LeaveController::class, 'store'])->name('leave.store');
+    Route::get('leave/calendar', [Teacher\LeaveController::class, 'calendar'])->name('leave.calendar');
 
     Route::get('profile', [Teacher\ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile/name', [Teacher\ProfileController::class, 'updateName'])->name('profile.update-name');
@@ -335,6 +374,14 @@ Route::prefix('inventory')->name('inventory.')->middleware(['auth', 'role:invent
     Route::post('items', [Inventory\DashboardController::class, 'storeItem'])->name('items.store');
     Route::post('stock-in', [Inventory\DashboardController::class, 'stockIn'])->name('stock-in');
     Route::post('stock-out', [Inventory\DashboardController::class, 'stockOut'])->name('stock-out');
+});
+
+// ─── Proficiency Test Take Routes (teachers and students) ─────────────────────
+Route::middleware(['auth', 'role:teacher,student,principal,admin'])->group(function () {
+    Route::get('proficiency-tests/my', [\App\Http\Controllers\ProficiencyTestTakeController::class, 'myTests'])->name('proficiency-tests.my');
+    Route::get('proficiency-tests/take/{assignment}', [\App\Http\Controllers\ProficiencyTestTakeController::class, 'take'])->name('proficiency-tests.take');
+    Route::post('proficiency-tests/submit/{attempt}', [\App\Http\Controllers\ProficiencyTestTakeController::class, 'submit'])->name('proficiency-tests.submit');
+    Route::get('proficiency-tests/result/{attempt}', [\App\Http\Controllers\ProficiencyTestTakeController::class, 'result'])->name('proficiency-tests.result');
 });
 
 // ─── Shared Notice Routes (all authenticated users) ────────────────────────────
