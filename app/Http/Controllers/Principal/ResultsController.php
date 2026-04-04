@@ -128,6 +128,85 @@ class ResultsController extends Controller
         return back()->with('success', 'Result rejected and returned to subject teacher.');
     }
 
+    public function generator(Request $request)
+    {
+        $classes       = SchoolClass::where('is_active', true)->orderBy('class')->get(['id', 'class', 'section']);
+        $examTypes     = config('school.exam_types');
+        $terms         = config('school.terms');
+        $academicYears = Result::distinct()->orderByDesc('academic_year')->pluck('academic_year')->values();
+
+        // If filters supplied, load student result preview
+        $studentResult = null;
+        $classStats    = null;
+
+        if ($request->filled(['exam_type', 'academic_year', 'term', 'student_id'])) {
+            $termMap   = config('school.terms');
+            $termValue = $termMap[$request->term] ?? $request->term;
+
+            $rows = Result::with('subject')
+                ->where('student_id',    $request->student_id)
+                ->where('exam_type',     $request->exam_type)
+                ->where('academic_year', $request->academic_year)
+                ->where('term',          $termValue)
+                ->get();
+
+            if ($rows->isNotEmpty()) {
+                $totalObtained = $rows->sum('obtained_marks');
+                $totalPossible = $rows->sum('total_marks');
+                $pct           = $totalPossible > 0 ? round($totalObtained / $totalPossible * 100, 1) : 0;
+
+                $studentResult = [
+                    'subjects'           => $rows->map(fn($r) => [
+                        'subject_name'   => $r->subject?->subject_name ?? 'N/A',
+                        'obtained_marks' => $r->obtained_marks,
+                        'total_marks'    => $r->total_marks,
+                        'percentage'     => round($r->percentage, 1),
+                        'grade'          => $r->grade,
+                    ])->values(),
+                    'total_marks'        => $totalPossible,
+                    'obtained_marks'     => $totalObtained,
+                    'overall_percentage' => $pct,
+                    'overall_grade'      => $rows->first()->grade,
+                ];
+            }
+        }
+
+        // Class-level stats
+        if ($request->filled(['exam_type', 'academic_year', 'term', 'class_id'])) {
+            $termMap   = config('school.terms');
+            $termValue = $termMap[$request->term] ?? $request->term;
+
+            $classResults = Result::where('class_id',      $request->class_id)
+                ->where('exam_type',     $request->exam_type)
+                ->where('academic_year', $request->academic_year)
+                ->where('term',          $termValue)
+                ->where('approval_status', 'approved')
+                ->get();
+
+            $classStats = [
+                'total_students'  => $classResults->pluck('student_id')->unique()->count(),
+                'total_entries'   => $classResults->count(),
+            ];
+        }
+
+        // Students for selected class
+        $students = $request->class_id
+            ? Student::where('class_id', $request->class_id)->where('is_active', true)
+                ->orderBy('full_name')->get(['id', 'full_name', 'admission_no'])
+            : collect();
+
+        return Inertia::render('Principal/Results/Generator', [
+            'classes'       => $classes,
+            'examTypes'     => $examTypes,
+            'terms'         => $terms,
+            'academicYears' => $academicYears,
+            'students'      => $students,
+            'studentResult' => $studentResult,
+            'classStats'    => $classStats,
+            'filters'       => $request->only(['exam_type', 'academic_year', 'term', 'class_id', 'student_id']),
+        ]);
+    }
+
     public function reportCards(Request $request)
     {
         $request->validate([

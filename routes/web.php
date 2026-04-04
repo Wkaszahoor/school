@@ -99,6 +99,7 @@ Route::prefix('principal')->name('principal.')->middleware(['auth', 'role:princi
     Route::post('lesson-plans/{lessonPlan}/reject', [Principal\LessonPlansController::class, 'reject'])->name('lesson-plans.reject');
 
     Route::get('results', [Principal\ResultsController::class, 'index'])->name('results.index');
+    Route::get('results/generator', [Principal\ResultsController::class, 'generator'])->name('results.generator');
     Route::get('results/report-cards', [Principal\ResultsController::class, 'reportCards'])->name('results.report-cards');
     Route::get('results/export', [Principal\ResultsController::class, 'export'])->name('results.export');
     Route::post('results/{result}/approve', [Principal\ResultsController::class, 'approve'])->name('results.approve');
