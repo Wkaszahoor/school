@@ -10,6 +10,9 @@ import {
 import AppLayout from '@/Layouts/AppLayout';
 import { Timetable, TimeSlot, TimetableEntry, TimetableConflict } from '@/types/timetable';
 import { PageProps } from '@/types';
+declare const route: (name: string, params?: any) => string;
+
+interface SelectorItem { id: number; label: string; }
 
 interface Props extends PageProps {
     timetable: Timetable;
@@ -17,6 +20,9 @@ interface Props extends PageProps {
     conflicts: TimetableConflict[];
     timeSlots: TimeSlot[];
     days: string[];
+    availableClasses: SelectorItem[];
+    availableTeachers: SelectorItem[];
+    availableRooms: SelectorItem[];
 }
 
 const statusBadgeStyles: Record<string, string> = {
@@ -27,9 +33,12 @@ const statusBadgeStyles: Record<string, string> = {
     archived: 'bg-slate-100 text-slate-800',
 };
 
-export default function Show({ timetable, entries, conflicts, timeSlots, days }: Props) {
+export default function Show({ timetable, entries, conflicts, timeSlots, days, availableClasses, availableTeachers, availableRooms }: Props) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [showConflicts, setShowConflicts] = useState(false);
+    const [selectedClass, setSelectedClass] = useState(availableClasses[0]?.id ?? '');
+    const [selectedTeacher, setSelectedTeacher] = useState(availableTeachers[0]?.id ?? '');
+    const [selectedRoom, setSelectedRoom] = useState(availableRooms[0]?.id ?? '');
 
     const handleGenerate = () => {
         if (confirm('Generate timetable using CSP algorithm? This may take a few moments.')) {
@@ -182,27 +191,67 @@ export default function Show({ timetable, entries, conflicts, timeSlots, days }:
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">View Timetable</h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <Link
-                                    href={route('principal.timetables.by-class', { timetable: timetable.id, class: 1 })}
-                                    className="p-4 border border-gray-200 rounded-lg hover:border-indigo-600 hover:bg-indigo-50 transition"
-                                >
-                                    <h3 className="font-semibold text-gray-900">By Class</h3>
-                                    <p className="text-sm text-gray-600 mt-1">View schedule for each class</p>
-                                </Link>
-                                <Link
-                                    href={route('principal.timetables.by-teacher', { timetable: timetable.id, teacher: 1 })}
-                                    className="p-4 border border-gray-200 rounded-lg hover:border-indigo-600 hover:bg-indigo-50 transition"
-                                >
-                                    <h3 className="font-semibold text-gray-900">By Teacher</h3>
-                                    <p className="text-sm text-gray-600 mt-1">View schedule for each teacher</p>
-                                </Link>
-                                <Link
-                                    href={route('principal.timetables.by-room', { timetable: timetable.id, room: 1 })}
-                                    className="p-4 border border-gray-200 rounded-lg hover:border-indigo-600 hover:bg-indigo-50 transition"
-                                >
-                                    <h3 className="font-semibold text-gray-900">By Room</h3>
-                                    <p className="text-sm text-gray-600 mt-1">View schedule for each room</p>
-                                </Link>
+
+                                {/* By Class */}
+                                <div className="p-4 border border-gray-200 rounded-lg">
+                                    <h3 className="font-semibold text-gray-900 mb-2">By Class</h3>
+                                    <select
+                                        value={selectedClass}
+                                        onChange={e => setSelectedClass(Number(e.target.value))}
+                                        className="form-select text-sm mb-3 w-full"
+                                    >
+                                        {availableClasses.map(c => (
+                                            <option key={c.id} value={c.id}>{c.label}</option>
+                                        ))}
+                                    </select>
+                                    <Link
+                                        href={route('principal.timetables.by-class', { timetable: timetable.id, class: selectedClass })}
+                                        className="block w-full text-center px-3 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
+                                    >
+                                        View Schedule
+                                    </Link>
+                                </div>
+
+                                {/* By Teacher */}
+                                <div className="p-4 border border-gray-200 rounded-lg">
+                                    <h3 className="font-semibold text-gray-900 mb-2">By Teacher</h3>
+                                    <select
+                                        value={selectedTeacher}
+                                        onChange={e => setSelectedTeacher(Number(e.target.value))}
+                                        className="form-select text-sm mb-3 w-full"
+                                    >
+                                        {availableTeachers.map(t => (
+                                            <option key={t.id} value={t.id}>{t.label}</option>
+                                        ))}
+                                    </select>
+                                    <Link
+                                        href={route('principal.timetables.by-teacher', { timetable: timetable.id, teacher: selectedTeacher })}
+                                        className="block w-full text-center px-3 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
+                                    >
+                                        View Schedule
+                                    </Link>
+                                </div>
+
+                                {/* By Room */}
+                                <div className="p-4 border border-gray-200 rounded-lg">
+                                    <h3 className="font-semibold text-gray-900 mb-2">By Room</h3>
+                                    <select
+                                        value={selectedRoom}
+                                        onChange={e => setSelectedRoom(Number(e.target.value))}
+                                        className="form-select text-sm mb-3 w-full"
+                                    >
+                                        {availableRooms.map(r => (
+                                            <option key={r.id} value={r.id}>{r.label}</option>
+                                        ))}
+                                    </select>
+                                    <Link
+                                        href={route('principal.timetables.by-room', { timetable: timetable.id, room: selectedRoom })}
+                                        className="block w-full text-center px-3 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition"
+                                    >
+                                        View Schedule
+                                    </Link>
+                                </div>
+
                             </div>
                         </div>
                     )}

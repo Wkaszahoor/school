@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import Pagination from '@/Components/Pagination';
 import { Timetable, PaginatedData } from '@/types/timetable';
 import { PageProps } from '@/types';
+declare const route: (name: string, params?: any) => string;
 
 interface Props extends PageProps {
     timetables: PaginatedData<Timetable>;

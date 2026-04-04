@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import AppLayout from '@/Layouts/AppLayout';
 import { PageProps } from '@/types';
 import { TimeSlot } from '@/types/timetable';
+declare const route: (name: string, params?: any) => string;
 
 interface Props extends PageProps {
     timeSlots: TimeSlot[];

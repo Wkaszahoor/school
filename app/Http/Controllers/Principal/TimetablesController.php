@@ -27,7 +27,7 @@ class TimetablesController extends Controller
             'timetables' => $timetables,
             'statuses' => ['draft', 'generating', 'generated', 'published', 'archived'],
             'terms' => ['spring', 'summer', 'autumn'],
-            'academicYears' => Timetable::distinct()->pluck('academic_year')->sort()->reverse(),
+            'academicYears' => Timetable::distinct()->pluck('academic_year')->sort()->reverse()->values(),
         ]);
     }
 
@@ -63,14 +63,29 @@ class TimetablesController extends Controller
 
     public function show(Timetable $timetable)
     {
-        $timetable->load('creator', 'entries', 'conflicts');
+        $timetable->load('creator', 'conflicts');
+
+        $entries = $timetable->entries()->with('schoolClass', 'subject', 'teacher', 'room', 'timeSlot')->get();
+
+        // Extract distinct classes/teachers/rooms that have entries
+        $classes  = $entries->pluck('schoolClass')->filter()->unique('id')->sortBy('class')->values()
+            ->map(fn($c) => ['id' => $c->id, 'label' => $c->class . ($c->section ? '-'.$c->section : '')]);
+
+        $teachers = $entries->pluck('teacher')->filter()->unique('id')->sortBy('name')->values()
+            ->map(fn($t) => ['id' => $t->id, 'label' => $t->name]);
+
+        $rooms    = $entries->pluck('room')->filter()->unique('id')->sortBy('room_name')->values()
+            ->map(fn($r) => ['id' => $r->id, 'label' => $r->room_name]);
 
         return Inertia::render('Principal/Timetables/Show', [
-            'timetable' => $timetable,
-            'entries' => $timetable->entries()->with('schoolClass', 'subject', 'teacher', 'room', 'timeSlot')->get(),
-            'conflicts' => $timetable->conflicts,
-            'timeSlots' => TimeSlot::active()->orderBy('period_number')->get(),
-            'days' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            'timetable'       => $timetable,
+            'entries'         => $entries,
+            'conflicts'       => $timetable->conflicts,
+            'timeSlots'       => TimeSlot::active()->orderBy('period_number')->get(),
+            'days'            => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            'availableClasses'  => $classes,
+            'availableTeachers' => $teachers,
+            'availableRooms'    => $rooms,
         ]);
     }
 

@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import TimetableGrid from '@/Components/Timetable/TimetableGrid';
 import { Timetable, TimeSlot, TimetableEntry, ScheduleGrid, RoomConfiguration } from '@/types/timetable';
 import { PageProps } from '@/types';
+declare const route: (name: string, params?: any) => string;
 
 interface Props extends PageProps {
     timetable: Timetable;
