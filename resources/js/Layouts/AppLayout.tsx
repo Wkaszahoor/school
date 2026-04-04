@@ -89,6 +89,7 @@ function getNavigation(user: User, pageProps: any): NavGroup[] {
                         { label: 'Datesheets',            href: route('principal.datesheets.index'), icon: CalendarIcon },
                         { label: 'Admission Cards',       href: route('principal.admission-cards.index'), icon: IdentificationIcon },
                         { label: 'Results',               href: route('principal.results.index'), icon: ChartBarIcon },
+                        { label: 'Result Card Generator', href: route('principal.results.generator'), icon: ChartBarIcon },
                         { label: 'Student Analytics',     href: route('principal.analytics.student-results'), icon: ChartBarIcon },
                         { label: 'Teacher Performance',   href: route('principal.analytics.teacher-performance'), icon: ChartBarIcon },
                         { label: 'Lesson Plans',          href: route('principal.lesson-plans.index'), icon: DocumentTextIcon },
