@@ -214,6 +214,7 @@ class ResultsController extends Controller
             'academic_year' => 'required|string',
             'term'          => 'required|string',
             'class_id'      => 'nullable|integer|exists:classes,id',
+            'student_id'    => 'nullable|integer|exists:students,id',
         ]);
 
         $reportData = $this->buildReportData($request);
@@ -240,7 +241,8 @@ class ResultsController extends Controller
         $termValue = $termMap[$request->term] ?? $request->term;
 
         $results = Result::with(['student.class', 'subject'])
-            ->when($request->class_id, fn($q) => $q->where('class_id', $request->class_id))
+            ->when($request->student_id, fn($q) => $q->where('student_id', $request->student_id))
+            ->when(!$request->student_id && $request->class_id, fn($q) => $q->where('class_id', $request->class_id))
             ->where('exam_type',     $request->exam_type)
             ->where('academic_year', $request->academic_year)
             ->where('term',          $termValue)
