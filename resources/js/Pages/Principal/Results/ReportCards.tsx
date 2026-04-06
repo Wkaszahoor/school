@@ -3,8 +3,11 @@ import { Head } from '@inertiajs/react';
 import { PrinterIcon } from '@heroicons/react/24/outline';
 import type { PageProps, StudentReportCard } from '@/types';
 
+interface CoGrade { term1: string | null; term2: string | null; }
+
 interface Props extends PageProps {
     reportData: StudentReportCard[];
+    coGrades: Record<number, Record<string, CoGrade>>;
     filters: {
         class_id: string | null;
         exam_type: string;
@@ -46,7 +49,15 @@ const gradeScale = [
     { range: '0–32',   grade: 'F'  },
 ];
 
-export default function ReportCards({ reportData, filters, examTypes, terms, classes }: Props) {
+const ACTIVITIES: Record<string, string> = {
+    uniform:    'Uniform & Discipline',
+    activities: 'Activities & Sports',
+    digital:    'Digital Literacy',
+    written:    'Written Skills',
+    speaking:   'Speaking Skills',
+};
+
+export default function ReportCards({ reportData, coGrades, filters, examTypes, terms, classes }: Props) {
     const handlePrint = () => window.print();
 
     const classLabel = filters.class_id
@@ -282,7 +293,7 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
 
                                 {/* ── CO-SCHOLASTIC ── */}
                                 <div className="rc-coscholastic" style={{ padding: '0 14px 10px' }}>
-                                    <div className="rc-section-title">CO-SCHOLASTIC &nbsp;(3 POINT GRADING SCALE: A, B, C)</div>
+                                    <div className="rc-section-title">CO-SCHOLASTIC &nbsp;(3 POINT GRADING SCALE: A = Excellent &nbsp;B = Good &nbsp;C = Satisfactory)</div>
                                     <table>
                                         <thead>
                                             <tr>
@@ -292,13 +303,20 @@ export default function ReportCards({ reportData, filters, examTypes, terms, cla
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {['Uniform & Discipline', 'Activities & Sports', 'Digital Literacy', 'Written Skills', 'Speaking Skills'].map(activity => (
-                                                <tr key={activity}>
-                                                    <td>{activity}</td>
-                                                    <td style={{ textAlign: 'center' }}>—</td>
-                                                    <td style={{ textAlign: 'center' }}>—</td>
-                                                </tr>
-                                            ))}
+                                            {Object.entries(ACTIVITIES).map(([key, label]) => {
+                                                const g = coGrades?.[entry.student.id]?.[key];
+                                                return (
+                                                    <tr key={key}>
+                                                        <td>{label}</td>
+                                                        <td style={{ textAlign: 'center', fontWeight: g?.term1 ? 700 : 400 }}>
+                                                            {g?.term1 || '—'}
+                                                        </td>
+                                                        <td style={{ textAlign: 'center', fontWeight: g?.term2 ? 700 : 400 }}>
+                                                            {g?.term2 || '—'}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>

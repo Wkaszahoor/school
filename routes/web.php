@@ -280,6 +280,9 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])
     Route::post('results/{result}/class-teacher-approve', [Teacher\ResultsController::class, 'classTeacherApprove'])->name('results.class-teacher-approve');
     Route::post('results/{result}/class-teacher-reject', [Teacher\ResultsController::class, 'classTeacherReject'])->name('results.class-teacher-reject');
 
+    Route::get('co-scholastic', [Teacher\CoScholasticGradesController::class, 'index'])->name('co-scholastic.index');
+    Route::post('co-scholastic', [Teacher\CoScholasticGradesController::class, 'store'])->name('co-scholastic.store');
+
     Route::get('lesson-plans', [Teacher\LessonPlansController::class, 'index'])->name('lesson-plans.index');
     Route::get('lesson-plans/create', [Teacher\LessonPlansController::class, 'create'])->name('lesson-plans.create');
     Route::post('lesson-plans', [Teacher\LessonPlansController::class, 'store'])->name('lesson-plans.store');

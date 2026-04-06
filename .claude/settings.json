@@ -65,7 +65,8 @@
       "Bash(git stash:*)",
       "Bash(git pull:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"Add .cpanel.yml for cPanel Git deployment:*)"
+      "Bash(git commit -m \"Add .cpanel.yml for cPanel Git deployment:*)",
+      "WebFetch(domain:kortedu.houroflight.com)"
     ],
     "additionalDirectories": [
       "I:\\website\\school\\ekort\\database\\seeders",
@@ -82,7 +83,8 @@
       "I:\\website\\school\\ekort\\resources\\js\\Pages\\Principal\\SubjectGroups",
       "i:\\website\\school\\ekort-nextjs",
       "i:\\website\\school\\ekort-nextjs\\src\\app\\(principal)\\principal\\students\\[id]",
-      "i:\\website\\school\\ekort-nextjs\\src\\app\\(principal)\\principal\\teachers\\[id]"
+      "i:\\website\\school\\ekort-nextjs\\src\\app\\(principal)\\principal\\teachers\\[id]",
+      "i:\\website\\school\\ekort\\public"
     ]
   }
 }

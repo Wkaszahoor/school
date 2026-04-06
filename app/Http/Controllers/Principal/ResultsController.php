@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Principal;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Result, SchoolClass, Subject, Student, AuditLog};
+use App\Models\{Result, SchoolClass, Subject, Student, AuditLog, CoScholasticGrade};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -220,8 +220,21 @@ class ResultsController extends Controller
         $reportData = $this->buildReportData($request);
         $classes    = SchoolClass::where('is_active', true)->get(['id', 'class', 'section']);
 
+        // Load co-scholastic grades keyed by student_id → activity
+        $termMap   = config('school.terms');
+        $termValue = $termMap[$request->term] ?? $request->term;
+        $coQuery = CoScholasticGrade::where('academic_year', $request->academic_year)
+            ->where('exam_type', $request->exam_type)
+            ->where('term', $termValue);
+        if ($request->student_id) $coQuery->where('student_id', $request->student_id);
+        elseif ($request->class_id) $coQuery->where('class_id', $request->class_id);
+        $coGrades = $coQuery->get()->groupBy('student_id')->map(fn($rows) =>
+            $rows->keyBy('activity')->map(fn($g) => ['term1' => $g->term1_grade, 'term2' => $g->term2_grade])
+        );
+
         return Inertia::render('Principal/Results/ReportCards', [
             'reportData' => $reportData,
+            'coGrades'   => $coGrades,
             'filters'    => [
                 'class_id'      => $request->class_id,
                 'exam_type'     => $request->exam_type,
